@@ -1,0 +1,63 @@
+<div>
+  <div class="panel">
+    <div class="panel-head" data-guide="gallery-list" style="flex-wrap:wrap;gap:8px">
+      我的图库
+      <span class="sub">共 {{ (store.gallery || []).length }} 张 · 编辑题目时可直接选用</span>
+      <div class="right" style="display:flex;gap:6px;align-items:center">
+        <el-input v-model="keyword" size="small" clearable placeholder="搜名称或标签" style="width:200px" :prefix-icon="'Search'" />
+        <el-button size="small" @click="collectFromBank">收藏题库图形</el-button>
+        <el-button size="small" type="primary" data-guide="gallery-upload" :loading="uploading" @click="fileInput && fileInput.click()">上传图片</el-button>
+        <input ref="fileInput" type="file" accept="image/*" multiple style="display:none" @change="onFiles" />
+      </div>
+    </div>
+
+    <div style="padding:16px">
+      <div v-if="!filtered.length" class="empty" style="padding:60px 10px">
+        <el-icon><Picture /></el-icon>
+        <div class="empty-title">{{ keyword ? '没有匹配的图片' : '图库还是空的' }}</div>
+        <div class="empty-desc" style="margin-bottom:14px">
+          {{ keyword ? '换个关键词试试' : '把常用的几何图、函数图像、电路图存进来，出题时随时取用' }}
+        </div>
+        <el-button v-if="!keyword" size="small" type="primary" @click="fileInput && fileInput.click()">上传第一张</el-button>
+      </div>
+
+      <div v-else class="gallery-grid">
+        <div class="gallery-item" v-for="g in filtered" :key="g.id">
+          <div class="gi-img" @click="preview = g.url">
+            <img :src="g.url" loading="lazy" />
+          </div>
+          <div class="gi-body">
+            <div class="gi-label">{{ g.label || '未命名' }}</div>
+            <div class="gi-tags">
+              <el-tag v-for="t in (g.tags || []).slice(0, 3)" :key="t" size="small" type="info" effect="plain">#{{ t }}</el-tag>
+            </div>
+          </div>
+          <div class="gi-acts">
+            <el-button size="small" text type="primary" @click="openEdit(g)">编辑</el-button>
+            <el-button size="small" text type="danger" @click="remove(g)">移除</el-button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <el-dialog v-model="editVisible" title="图片信息" width="440px">
+    <el-form label-width="64px">
+      <el-form-item label="名称">
+        <el-input v-model="editLabel" placeholder="如 直角三角形示意图" />
+      </el-form-item>
+      <el-form-item label="标签">
+        <el-input v-model="editTags" placeholder="逗号分隔，如 几何,中考" />
+      </el-form-item>
+    </el-form>
+    <div v-if="editItem" style="text-align:center;padding:8px">
+      <img :src="editItem.url" style="max-width:100%;max-height:240px;border-radius:6px;border:1px solid var(--border)" />
+    </div>
+    <template #footer>
+      <el-button @click="editVisible = false">取消</el-button>
+      <el-button type="primary" @click="saveEdit">保存</el-button>
+    </template>
+  </el-dialog>
+
+  <el-image-viewer v-if="preview" :url-list="[preview]" @close="preview = ''" />
+</div>

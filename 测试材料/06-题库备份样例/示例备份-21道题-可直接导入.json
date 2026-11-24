@@ -1,0 +1,517 @@
+{
+  "exportedAt": "2026-11-15T02:00:00.000Z",
+  "folders": [
+    {
+      "id": "f_demo",
+      "name": "八年级数学（测试）",
+      "createdAt": 1763200000000
+    }
+  ],
+  "questions": [
+    {
+      "id": "q_demo_01",
+      "stem": "若 √(x - 3) 有意义，则 x 的取值范围是？",
+      "type": "填空题",
+      "options": [],
+      "answer": "x ≥ 3",
+      "analysis": "二次根式有意义的条件是被开方数非负。",
+      "knowledge": [
+        "二次根式"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200000000,
+      "updatedAt": 1763200000000
+    },
+    {
+      "id": "q_demo_02",
+      "stem": "解方程：x² - 6x + 8 = 0",
+      "type": "解答题",
+      "options": [],
+      "answer": "x1 = 2，x2 = 4",
+      "analysis": "因式分解得 (x-2)(x-4)=0，所以 x=2 或 x=4。",
+      "knowledge": [
+        "一元二次方程",
+        "因式分解法"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200060000,
+      "updatedAt": 1763200060000
+    },
+    {
+      "id": "q_demo_03",
+      "stem": "一次函数 y = -2x + 3 的图象不经过哪个象限？",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "第一象限"
+        },
+        {
+          "key": "B",
+          "text": "第二象限"
+        },
+        {
+          "key": "C",
+          "text": "第三象限"
+        },
+        {
+          "key": "D",
+          "text": "第四象限"
+        }
+      ],
+      "answer": "C",
+      "analysis": "k<0、b>0，图象过一、二、四象限，不过第三象限。",
+      "knowledge": [
+        "一次函数",
+        "图象"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200120000,
+      "updatedAt": 1763200120000
+    },
+    {
+      "id": "q_demo_04",
+      "stem": "下列各数中，是无理数的是？",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "√4"
+        },
+        {
+          "key": "B",
+          "text": "22/7"
+        },
+        {
+          "key": "C",
+          "text": "π"
+        },
+        {
+          "key": "D",
+          "text": "0.1010010001"
+        }
+      ],
+      "answer": "C",
+      "analysis": "π 是无限不循环小数；√4=2，22/7 与 D 都是有理数。",
+      "knowledge": [
+        "实数",
+        "无理数"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200180000,
+      "updatedAt": 1763200180000
+    },
+    {
+      "id": "q_demo_05",
+      "stem": "两条直线被第三条直线所截，内错角一定相等。",
+      "type": "判断题",
+      "options": [],
+      "answer": "×",
+      "analysis": "只有两直线平行时内错角才相等。",
+      "knowledge": [
+        "平行线",
+        "三线八角"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200240000,
+      "updatedAt": 1763200240000
+    },
+    {
+      "id": "q_demo_06",
+      "stem": "一次函数 y = kx + b 中，k ≠ 0。",
+      "type": "判断题",
+      "options": [],
+      "answer": "√",
+      "analysis": "一次函数的定义要求一次项系数不为零。",
+      "knowledge": [
+        "一次函数"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200300000,
+      "updatedAt": 1763200300000
+    },
+    {
+      "id": "q_demo_07",
+      "stem": "分解因式：a³ - 4a = ？",
+      "type": "填空题",
+      "options": [],
+      "answer": "a(a+2)(a-2)",
+      "analysis": "先提公因式 a，再用平方差公式。",
+      "knowledge": [
+        "因式分解",
+        "平方差公式"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200360000,
+      "updatedAt": 1763200360000
+    },
+    {
+      "id": "q_demo_08",
+      "stem": "计算：(√12 - √(1/3)) × √3 = ？",
+      "type": "填空题",
+      "options": [],
+      "answer": "5",
+      "analysis": "√12=2√3，√(1/3)=√3/3，相减得 5√3/3，再乘 √3 得 5。",
+      "knowledge": [
+        "二次根式",
+        "化简"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200420000,
+      "updatedAt": 1763200420000
+    },
+    {
+      "id": "q_demo_09",
+      "stem": "（多选）下列命题中，真命题有？",
+      "type": "多选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "对顶角相等"
+        },
+        {
+          "key": "B",
+          "text": "两直线平行，同位角相等"
+        },
+        {
+          "key": "C",
+          "text": "若 a² = b²，则 a = b"
+        },
+        {
+          "key": "D",
+          "text": "三角形的内角和等于 180°"
+        }
+      ],
+      "answer": "ABD",
+      "analysis": "C 错，a 与 b 也可能互为相反数。",
+      "knowledge": [
+        "命题",
+        "平行线",
+        "三角形"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200480000,
+      "updatedAt": 1763200480000
+    },
+    {
+      "id": "q_demo_10",
+      "stem": "如图，在 △ABC 中，AB = AC，∠BAC = 40°，AD ⊥ BC 于点 D，求 ∠BAD 的度数。",
+      "type": "解答题",
+      "options": [],
+      "answer": "20°",
+      "analysis": "等腰三角形底边上的高也是顶角平分线，故 ∠BAD = 20°。",
+      "knowledge": [
+        "等腰三角形",
+        "三线合一"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200540000,
+      "updatedAt": 1763200540000
+    },
+    {
+      "id": "q_demo_11",
+      "stem": "某班 40 名学生成绩频数分布表：50~60 有 2 人，60~70 有 6 人，70~80 有 14 人，80~90 有 12 人，90~100 有 6 人，求中位数所在小组。",
+      "type": "解答题",
+      "options": [],
+      "answer": "70~80 分",
+      "analysis": "第 20、21 个数据都落在 70~80 组。",
+      "knowledge": [
+        "统计",
+        "中位数"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200600000,
+      "updatedAt": 1763200600000
+    },
+    {
+      "id": "q_demo_12",
+      "stem": "先化简，再求值：(a + 2)² - (a + 1)(a - 1)，其中 a = -3。",
+      "type": "解答题",
+      "options": [],
+      "answer": "-7",
+      "analysis": "原式 = a²+4a+4 - (a²-1) = 4a+5，代入 a=-3 得 -7。",
+      "knowledge": [
+        "整式乘法",
+        "化简求值"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200660000,
+      "updatedAt": 1763200660000
+    },
+    {
+      "id": "q_demo_13",
+      "stem": "某商店购进文具，进价每件 8 元，售价每件 12 元，想获得不低于 800 元利润，至少卖出多少件？",
+      "type": "解答题",
+      "options": [],
+      "answer": "200 件",
+      "analysis": "设卖出 x 件，(12-8)x ≥ 800，x ≥ 200。",
+      "knowledge": [
+        "一元一次不等式",
+        "应用题"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200720000,
+      "updatedAt": 1763200720000
+    },
+    {
+      "id": "q_demo_14",
+      "stem": "下列二次根式中，属于最简二次根式的是？",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "√8"
+        },
+        {
+          "key": "B",
+          "text": "√(1/2)"
+        },
+        {
+          "key": "C",
+          "text": "√6"
+        },
+        {
+          "key": "D",
+          "text": "√12"
+        }
+      ],
+      "answer": "C",
+      "analysis": "√8=2√2，√(1/2)=√2/2，√12=2√3，只有 √6 无法再化简。",
+      "knowledge": [
+        "二次根式",
+        "最简二次根式"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200780000,
+      "updatedAt": 1763200780000
+    },
+    {
+      "id": "q_demo_15",
+      "stem": "下列关于二氧化碳的说法正确的是？",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "CO2 属于有机物"
+        },
+        {
+          "key": "B",
+          "text": "CO2 通入紫色石蕊试液，溶液变红"
+        },
+        {
+          "key": "C",
+          "text": "CO2 能使澄清石灰水变浑浊"
+        },
+        {
+          "key": "D",
+          "text": "实验室用大理石与稀硫酸反应制取 CO2"
+        }
+      ],
+      "answer": "BC",
+      "analysis": "A 错，CO2 属无机物；D 错，稀硫酸与大理石生成微溶的硫酸钙会阻碍反应。",
+      "knowledge": [
+        "二氧化碳",
+        "酸碱指示剂"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200840000,
+      "updatedAt": 1763200840000
+    },
+    {
+      "id": "q_demo_16",
+      "stem": "古诗文默写：山重水复疑无路，________。（陆游《游山西村》）",
+      "type": "填空题",
+      "options": [],
+      "answer": "柳暗花明又一村",
+      "analysis": "出自陆游《游山西村》颔联。",
+      "knowledge": [
+        "古诗文默写"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200900000,
+      "updatedAt": 1763200900000
+    },
+    {
+      "id": "q_demo_17",
+      "stem": "已知 a+b=5，ab=6，求 a²+b² 的值。",
+      "type": "解答题",
+      "options": [],
+      "answer": "13",
+      "analysis": "a²+b²=(a+b)²-2ab=25-12=13。",
+      "knowledge": [
+        "完全平方公式",
+        "韦达定理"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763200960000,
+      "updatedAt": 1763200960000
+    },
+    {
+      "id": "q_demo_18",
+      "stem": "已知方程 x²+3x-1=0 的两根为 x1、x2，求 x1²+x2²。",
+      "type": "解答题",
+      "options": [],
+      "answer": "11",
+      "analysis": "x1+x2=-3，x1x2=-1，x1²+x2²=9+2=11。",
+      "knowledge": [
+        "一元二次方程",
+        "韦达定理"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763201020000,
+      "updatedAt": 1763201020000
+    },
+    {
+      "id": "q_demo_19",
+      "stem": "一个直角三角形两条直角边相差 3，斜边为 15，求两条直角边。",
+      "type": "解答题",
+      "options": [],
+      "answer": "9 和 12",
+      "analysis": "设短边为 x，x²+(x+3)²=225，解得 x=9（舍去负根）。",
+      "knowledge": [
+        "勾股定理",
+        "一元二次方程"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763201080000,
+      "updatedAt": 1763201080000
+    },
+    {
+      "id": "q_demo_20",
+      "stem": "某商品原价 100 元，连续两次降价后为 81 元，求平均每次降价的百分率。",
+      "type": "解答题",
+      "options": [],
+      "answer": "10%",
+      "analysis": "100(1-x)²=81，得 x=0.1 或 1.9（舍），故为 10%。",
+      "knowledge": [
+        "一元二次方程",
+        "增长率问题"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763201140000,
+      "updatedAt": 1763201140000
+    },
+    {
+      "id": "q_demo_21",
+      "stem": "判断：若 a² = b²，则 a = b。",
+      "type": "判断题",
+      "options": [],
+      "answer": "×",
+      "analysis": "反例：a=2、b=-2，平方相等但不相等。",
+      "knowledge": [
+        "实数",
+        "命题"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "source": "测试样例",
+      "image": "",
+      "folderId": "f_demo",
+      "createdAt": 1763201200000,
+      "updatedAt": 1763201200000
+    }
+  ],
+  "lectures": [],
+  "_note": "测试样例数据，共 21 道题"
+}

@@ -1,0 +1,94 @@
+<div class="paper" :class="'cols-' + cfg.columns" :style="paperStyle">
+  <template v-if="lecture">
+    <header class="doc-header">
+      <div class="doc-school" v-if="cfg.showMeta && cfg.school">{{ cfg.school }}</div>
+      <h1 class="doc-title">{{ lecture.title || '未命名讲义' }}</h1>
+      <div class="doc-sub" v-if="cfg.showSubtitle && subtitle">{{ subtitle }}</div>
+      <div class="doc-exam" v-if="cfg.examInfo">{{ cfg.examInfo }}</div>
+
+      <div class="doc-meta" v-if="cfg.showStudentInfo">
+        <span class="meta-item"><em>班级</em><i></i></span>
+        <span class="meta-item"><em>姓名</em><i></i></span>
+        <span class="meta-item"><em>学号</em><i></i></span>
+        <span class="meta-item"><em>得分</em><i></i></span>
+      </div>
+      <div class="doc-sign" v-else-if="cfg.teacher || cfg.showDate">
+        <span v-if="cfg.teacher">命题教师：{{ cfg.teacher }}</span>
+        <span v-if="cfg.showDate">{{ today }}</span>
+      </div>
+
+      <!-- 注意事项 -->
+      <div class="doc-notice" v-if="cfg.showNotice && cfg.noticeText">
+        <b>注意事项：</b>{{ cfg.noticeText }}
+      </div>
+    </header>
+
+    <template v-for="(sec, si) in lecture.sections" :key="sec.id || si">
+      <div class="doc-section">
+        <div class="doc-heading" v-if="sec.heading">{{ sec.heading }}</div>
+
+        <!-- 双栏只包住题目，标题留在外面才能横跨整行（真题的大题标题是通栏的） -->
+        <div class="doc-section-body" :class="sec.cols === 2 ? 'cols-2' : ''">
+          <template v-for="(b, bi) in sec.blocks" :key="b.id || bi">
+            <p v-if="b.type === 'text'" class="doc-p" v-html="rich(b.content)"></p>
+
+            <ul v-else-if="b.type === 'points'" class="doc-points">
+              <li v-for="(it, i) in pointItems(b)" :key="i" v-html="rich(it)"></li>
+            </ul>
+
+            <div v-else-if="b.type === 'formula'" class="doc-formula" v-html="rich(b.content)"></div>
+
+            <div v-else-if="b.type === 'example'" class="doc-example" v-html="rich(b.content)"></div>
+
+            <div v-else-if="b.type === 'question'" class="doc-q">
+              <div class="q-stem">
+                <span class="q-no">{{ qIndex(b.id) }}.</span>
+                <span v-html="stemForPaper(b)"></span>
+                <span class="opt-line" v-if="b.typeLabel">（{{ b.typeLabel }}）</span>
+                <span class="q-score" v-if="qScore(b.id)">（{{ qScore(b.id) }}分）</span>
+              </div>
+              <div class="doc-opts" v-if="(b.options || []).length">
+                <div v-for="o in (b.options || [])" :key="o.key" class="opt">
+                  <span class="opt-key">{{ o.key }}.</span>
+                  <span v-html="rich(o.text)"></span>
+                </div>
+              </div>
+              <!-- 作答区：b.lines 明确为 0 时就是"不留作答区"，不能被 || 兜底成默认行数 -->
+              <div v-if="cfg.answerArea === 'line' && needLines(b) && answerLinesOf(b)" class="answer-area">
+                <div class="line" v-for="n in answerLinesOf(b)" :key="n"></div>
+              </div>
+              <div v-else-if="cfg.answerArea === 'grid' && needLines(b)" class="answer-area grid-area"
+                   :style="{ gridTemplateColumns: 'repeat(' + cfg.gridCols + ', 1fr)', width: '100%', maxWidth: (cfg.gridCols * 26) + 'px' }">
+                <div class="cell" v-for="n in (cfg.gridCols * (b.gridRows || 8))" :key="n"></div>
+              </div>
+            </div>
+
+            <div v-else-if="b.type === 'answer'" class="answer-area">
+              <div class="line" v-for="n in (b.lines || 3)" :key="n"></div>
+            </div>
+
+            <div v-else-if="b.type === 'tianzige'" class="answer-area row-area">
+              <div class="cell" :style="{ width: (b.cell || 26) + 'px', height: (b.cell || 26) + 'px' }"
+                   v-for="n in ((b.cols || 12) * (b.rows || 3))" :key="n"></div>
+            </div>
+
+            <div v-else-if="b.type === 'pagebreak'" class="page-break"></div>
+          </template>
+        </div>
+      </div>
+    </template>
+
+    <div v-if="cfg.showAnswer && answerList.length" class="doc-section doc-answer-block">
+      <div class="doc-heading">参考答案与解析</div>
+      <div v-for="a in answerList" :key="a.no" class="doc-q">
+        <div><span class="q-no">{{ a.no }}.</span> <span style="color:#5e8168;font-weight:600" v-html="renderAnswer(a) || '（略）'"></span></div>
+        <div v-if="a.analysis" class="doc-example" style="font-size:.94em" v-html="rich(a.analysis)"></div>
+      </div>
+    </div>
+
+    <div class="doc-finish" v-if="cfg.showFooter">
+      <span class="doc-end-dot"></span>试卷结束<span class="doc-end-dot"></span>
+    </div>
+  </template>
+  <div v-else class="empty">还没有内容</div>
+</div>

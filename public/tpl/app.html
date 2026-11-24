@@ -1,0 +1,62 @@
+<div class="layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-logo">题</div>
+      <div>
+        <div class="brand-name">题库与讲义系统</div>
+        <div class="brand-sub">本地版 · 数据只存本机</div>
+      </div>
+    </div>
+
+    <div class="nav-group" v-for="g in nav" :key="g.title">
+      <div class="nav-group-title">{{ g.title }}</div>
+      <div v-for="item in g.items" :key="item.key"
+           class="nav-item" :class="{ active: store.view === item.key }"
+           :data-guide="'nav-' + item.key"
+           @click="go(item.key)">
+        <el-icon><component :is="item.icon" /></el-icon>
+        <span>{{ item.label }}</span>
+      </div>
+    </div>
+
+    <div class="sidebar-foot">
+      <div>题目 <b>{{ store.stats.questionCount || 0 }}</b> 道 · 讲义 <b>{{ store.stats.lectureCount || 0 }}</b> 份</div>
+      <div v-if="!store.settings.hasKey" style="color:#e08b00;margin-top:4px;cursor:pointer" @click="go('settings')">
+        尚未配置 API Key，点此设置
+      </div>
+      <div class="sidebar-guide" data-guide="sidebar-guide" @click="openGuide">
+        <el-icon><QuestionFilled /></el-icon>
+        <span>使用指南</span>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <div class="page-title">{{ current.label }}</div>
+        <div class="page-desc">{{ current.desc }}</div>
+      </div>
+      <div class="topbar-right">
+        <slot name="actions"></slot>
+        <el-button data-guide="topbar-help" :icon="'QuestionFilled'" circle text
+                   title="这个页面怎么用（快捷键 F1）" @click="openHelp" />
+        <el-button :icon="store.theme === 'dark' ? 'Sunny' : 'Moon'" circle text @click="toggleTheme" />
+      </div>
+    </header>
+    <div class="content" :style="store.view === 'lecture' ? 'padding:14px 16px 20px;overflow:hidden' : ''">
+      <!-- 启动时先读本地数据，读完再渲染页面，免得一闪而过"题库是空的" -->
+      <div v-if="!store.ready" class="boot-loading">
+        <div class="boot-spinner"></div>
+        <div class="boot-text">正在读取本地题库…</div>
+      </div>
+      <keep-alive v-else>
+        <component :is="viewComp" />
+      </keep-alive>
+    </div>
+  </main>
+</div>
+
+<div class="print-area">
+  <doc-view v-if="store.printTarget" :lecture="store.printTarget.lecture" :config="store.printTarget.config" />
+</div>

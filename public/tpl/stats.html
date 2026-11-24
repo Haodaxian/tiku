@@ -1,0 +1,157 @@
+<div>
+  <div class="grid-4">
+    <div class="stat-card">
+      <div class="stat-label">题库总量</div>
+      <div class="stat-value">{{ s.questionCount || 0 }}<small>道</small></div>
+      <div class="stat-foot">有答案 {{ s.withAnswer || 0 }} 道</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">讲义</div>
+      <div class="stat-value">{{ s.lectureCount || 0 }}<small>份</small></div>
+      <div class="stat-foot">可随时修改重新打印</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">收藏 / 掌握</div>
+      <div class="stat-value">{{ s.favoriteCount || 0 }}<small>道收藏</small></div>
+      <div class="stat-foot">
+        掌握 {{ (s.byMastery || {}).掌握 || 0 }} · 模糊 {{ (s.byMastery || {}).模糊 || 0 }} · 生疏 {{ (s.byMastery || {}).生疏 || 0 }}
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">浏览次数</div>
+      <div class="stat-value">{{ s.totalViews || 0 }}<small>次</small></div>
+      <div class="stat-foot">平均每题 {{ s.avgViews || 0 }} 次</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月平均响应</div>
+      <div class="stat-value">{{ s.avgSec ? s.avgSec : '—' }}<small v-if="s.avgSec">秒</small></div>
+      <div class="stat-foot">本月调用 {{ s.monthCalls || 0 }} 次</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月预估费用</div>
+      <div class="stat-value">¥{{ (s.monthCost || 0).toFixed(2) }}</div>
+      <div class="stat-foot">消耗 {{ (s.monthTokens || 0).toLocaleString() }} tokens</div>
+    </div>
+  </div>
+
+  <div class="panel mt-14" v-if="(s.byModel || []).length">
+    <div class="panel-head">本月使用情况<span class="sub">按用途统计，费用为估算值</span></div>
+    <div class="panel-pad">
+      <el-table :data="modelRows" size="small" style="width:100%">
+        <el-table-column label="用途" width="230">
+          <template #default="scope">
+            <div style="font-weight:600;font-size:13px">{{ scope.row.kind }}</div>
+            <div style="font-size:11px;color:var(--text-mute);margin-top:2px">{{ scope.row.raw }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="calls" label="调用次数" width="100" />
+        <el-table-column label="平均响应" width="120">
+          <template #default="scope">
+            <span :style="{ color: scope.row.avgSec && scope.row.avgSec <= 8 ? 'var(--ok)' : scope.row.avgSec > 15 ? 'var(--danger)' : '' }">
+              {{ scope.row.avgSec ? scope.row.avgSec + ' 秒' : '—' }}
+            </span>
+          </template>
+        </el-table-column>
+        <el-table-column label="消耗 tokens" width="130">
+          <template #default="scope">{{ scope.row.tokens.toLocaleString() }}</template>
+        </el-table-column>
+        <el-table-column label="预估花费" width="110">
+          <template #default="scope">¥{{ scope.row.cost.toFixed(2) }}</template>
+        </el-table-column>
+      </el-table>
+    </div>
+  </div>
+
+  <div class="grid-2 mt-14">
+    <div class="panel">
+      <div class="panel-head">近 7 天录入量<span class="sub" v-if="weekTotal">共 {{ weekTotal }} 道</span></div>
+      <div class="panel-pad">
+        <div class="bars" v-if="weekTotal > 0">
+          <div class="bar-col" v-for="d in (s.last7 || [])" :key="d.label">
+            <div class="bar-value">{{ d.count }}</div>
+            <div class="bar" :class="{ zero: !d.count }" :style="{ height: barHeight(d.count) }"></div>
+            <div class="bar-label">{{ d.label }}</div>
+          </div>
+        </div>
+        <div class="bars-empty" v-else>
+          <el-icon><TrendCharts /></el-icon>
+          <div>这周还没有录入记录</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head" data-guide="stats-dist">题型分布</div>
+      <div class="panel-pad" style="min-height:170px">
+        <template v-if="Object.keys(s.byType || {}).length">
+          <div v-for="(v, k) in (s.byType || {})" :key="k" style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+              <span>{{ k }}</span><span class="muted">{{ v }} 道</span>
+            </div>
+            <div style="height:7px;background:var(--bg);border-radius:4px;overflow:hidden">
+              <div :style="{ width: pct(v, s.questionCount), height: '100%', background: 'linear-gradient(90deg,#8ea4b6,#5f7a92)' }"></div>
+            </div>
+          </div>
+        </template>
+        <div v-else class="empty" style="padding:30px 0">
+          <el-icon><PieChart /></el-icon>
+          <div class="empty-desc">录入题目后，这里会显示题型构成</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2 mt-14">
+    <div class="panel">
+      <div class="panel-head">难度分布</div>
+      <div class="panel-pad" style="min-height:170px">
+        <div v-for="d in DIFFS" :key="d" style="margin-bottom:10px">
+          <div style="display:flex;justify-content:space-between;font-size:12.5px;margin-bottom:5px">
+            <span>{{ d }}</span><span class="muted">{{ (s.byDifficulty || {})[d] || 0 }} 道</span>
+          </div>
+          <div style="height:7px;background:var(--bg);border-radius:4px;overflow:hidden">
+            <div :style="{ width: pct((s.byDifficulty || {})[d] || 0, s.questionCount), height: '100%', background: diffColor(d) }"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-head">知识点分布<span class="sub">出现最多的 12 个</span></div>
+      <div class="panel-pad" style="min-height:170px">
+        <div style="display:flex;flex-wrap:wrap;gap:8px" v-if="(s.topKnowledge || []).length">
+          <el-tag v-for="k in (s.topKnowledge || [])" :key="k.name" size="default" effect="plain" style="--el-tag-border-color: var(--border-strong)">
+            {{ k.name }} <span style="color:var(--text-mute)">· {{ k.count }}</span>
+          </el-tag>
+        </div>
+        <div v-else class="empty" style="padding:30px 0">
+          <el-icon><PriceTag /></el-icon>
+          <div class="empty-desc">题目带上知识点标签后会汇总在这里</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel mt-14">
+    <div class="panel-head" data-guide="stats-cost">费用参考<span class="sub">按官方刊例价，单位：元 / 百万 tokens</span></div>
+    <div class="panel-pad">
+      <el-table :data="priceRows" size="small" style="width:100%">
+        <el-table-column label="用途" width="200">
+          <template #default="scope">
+            <div style="font-weight:600;font-size:13px">{{ scope.row.model }}</div>
+            <div style="font-size:11px;color:var(--text-mute);margin-top:2px">{{ scope.row.raw }}</div>
+          </template>
+        </el-table-column>
+        <el-table-column prop="label" label="说明" width="170" />
+        <el-table-column prop="in" label="输入价" width="100" />
+        <el-table-column prop="out" label="输出价" width="100" />
+        <el-table-column prop="note" label="备注" />
+      </el-table>
+      <div class="muted" style="margin-top:12px;line-height:1.9">
+        拍一张单题照片约 600 输入 + 450 输出 tokens，约 <b>半分钱</b>；
+        整页试卷按页算约 <b>2 分钱</b>；一份三千字的讲义约 <b>2 分钱</b>，一道题的解答约 0.2 分钱。<br />
+        一个月录 500 道题、做 20 份讲义，费用通常在 <b>3～8 元</b>。
+      </div>
+    </div>
+  </div>
+</div>

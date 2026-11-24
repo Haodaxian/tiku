@@ -1,0 +1,130 @@
+<div style="max-width:860px">
+  <div class="panel">
+    <div class="panel-head">大模型接入<span class="sub">Key 只保存在这台电脑上，不会上传</span></div>
+    <div class="panel-pad">
+      <el-form label-width="96px" class="form-narrow">
+        <el-form-item label="API Key" data-guide="settings-key">
+          <div style="width:100%;display:flex;gap:8px">
+            <el-input v-model="apiKey" type="password" show-password
+                      :placeholder="store.settings.hasKey ? '已配置（' + store.settings.keyMask + '），留空则不修改' : '粘贴阶跃星辰的 API Key'"
+                      style="flex:1" />
+            <el-button type="primary" plain :loading="testing" @click="saveAndTest">保存并测试</el-button>
+            <el-button v-if="store.settings.hasKey" plain type="danger" @click="clearKey">清除</el-button>
+          </div>
+          <div class="muted" style="margin-top:6px;line-height:1.7">
+            到 platform.stepfun.com 注册后，在「API Key」页面创建一个，复制过来即可。个人使用一个月通常十几元。
+          </div>
+        </el-form-item>
+      </el-form>
+
+      <div class="model-box">
+        <div class="model-item">
+          <div class="mi-icon"><el-icon><Camera /></el-icon></div>
+          <div class="mi-body">
+            <div class="mi-name">{{ visionInfo.name }}<span class="mi-tag">看图录题</span></div>
+            <div class="mi-note">{{ visionInfo.note }}</div>
+          </div>
+        </div>
+        <div class="model-item">
+          <div class="mi-icon"><el-icon><ChatDotSquare /></el-icon></div>
+          <div class="mi-body">
+            <div class="mi-name">{{ textInfo.name }}<span class="mi-tag">解题与讲义整理</span></div>
+            <div class="mi-note">{{ textInfo.note }}</div>
+          </div>
+        </div>
+      </div>
+
+      <el-alert v-if="testResult" :title="testResult" :type="testOk ? 'success' : 'error'" :closable="false" style="margin-top:12px" />
+    </div>
+  </div>
+
+  <div class="panel mt-14">
+    <div class="panel-head">个人信息<span class="sub">会作为试卷抬头，可随时改</span></div>
+    <div class="panel-pad">
+      <el-form label-width="96px" class="form-narrow">
+        <el-form-item label="学校" data-guide="settings-profile">
+          <el-input v-model="school" placeholder="例如：郑州市第七中学" />
+        </el-form-item>
+        <el-form-item label="教师">
+          <el-input v-model="teacher" placeholder="你的姓名" />
+        </el-form-item>
+        <el-form-item label="默认分栏">
+          <el-radio-group v-model="density" size="small">
+            <el-radio-button label="single">单栏</el-radio-button>
+            <el-radio-button label="double">双栏</el-radio-button>
+          </el-radio-group>
+          <div class="muted" style="margin-top:4px;line-height:1.6">新建讲义时的默认版式，已有的讲义不受影响。</div>
+        </el-form-item>
+        <el-form-item label="学段学科">
+          <div style="display:flex;gap:8px;width:100%">
+            <el-select v-model="defaultGrade" clearable placeholder="默认年级" style="flex:1">
+              <el-option v-for="g in GRADES" :key="g" :label="g" :value="g" />
+            </el-select>
+            <el-select v-model="defaultSubject" clearable filterable placeholder="默认学科" style="flex:1">
+              <el-option v-for="s in SUBJECTS" :key="s" :label="s" :value="s" />
+            </el-select>
+          </div>
+          <div class="muted" style="margin-top:4px;line-height:1.6">录题和整卷导入时会自动带上，省得每次重选。</div>
+        </el-form-item>
+      </el-form>
+      <div style="display:flex;justify-content:flex-end;max-width:620px">
+        <el-button type="primary" size="small" @click="saveProfile" :loading="saving">保存</el-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel mt-14">
+    <div class="panel-head" data-guide="settings-backup">数据<span class="sub">都放在程序旁边的 data 文件夹里</span></div>
+    <div class="panel-pad">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px">
+        <el-button @click="backup" :loading="backing">
+          <el-icon style="margin-right:5px"><FolderAdd /></el-icon>立即备份
+        </el-button>
+        <el-button @click="exportAll">
+          <el-icon style="margin-right:5px"><Download /></el-icon>导出全部数据
+        </el-button>
+        <el-button @click="importVisible = true">
+          <el-icon style="margin-right:5px"><Upload /></el-icon>从备份恢复
+        </el-button>
+      </div>
+      <div class="info-row"><span class="k">题目与讲义</span><span class="v mono">data/db.json</span></div>
+      <div class="info-row"><span class="k">图片</span><span class="v mono">data/uploads/</span></div>
+      <div class="info-row"><span class="k">自动备份</span><span class="v">每天一份，保留最近 7 天（程序一直开着也会自动补上）</span></div>
+      <div class="info-row"><span class="k">换电脑</span><span class="v">程序和 data 文件夹一起拷过去</span></div>
+      <div class="info-row" v-if="dataDir">
+        <span class="k">实际位置</span>
+        <span class="v mono" style="word-break:break-all">{{ dataDir }}</span>
+        <el-button size="small" text type="primary" v-if="canOpenFolder" @click="openDataDir">打开文件夹</el-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel mt-14">
+    <div class="panel-head">关于</div>
+    <div class="panel-pad muted" style="line-height:1.9">
+      题库与讲义系统 · 个人版 v1.3<br />
+      免安装，双击即用；不需要装任何运行环境，也不使用数据库。<br />
+      除了把图片和文字发给大模型，其余数据全部留在本机。<br />
+      关闭启动窗口即退出程序，数据已自动保存。
+    </div>
+    <div class="panel-pad" style="border-top:1px solid var(--border);display:flex;gap:9px;flex-wrap:wrap;align-items:center">
+      <el-button size="small" @click="openGuide">
+        <el-icon style="margin-right:5px"><QuestionFilled /></el-icon>使用指南
+      </el-button>
+      <el-button size="small" @click="restartTour">
+        <el-icon style="margin-right:5px"><Refresh /></el-icon>重看新手引导
+      </el-button>
+      <span class="muted" style="font-size:12px">顶栏的「?」按钮可以随时看当前页面的说明（按 F1 也行）。</span>
+    </div>
+  </div>
+
+  <el-dialog v-model="importVisible" title="从备份恢复" width="520px">
+    <div class="muted" style="line-height:1.9;margin-bottom:12px">
+      选择一个之前导出的备份文件，恢复后当前数据会被替换（建议先点「立即备份」）。
+    </div>
+    <input type="file" accept=".json" @change="doRestore" />
+    <template #footer>
+      <el-button @click="importVisible = false">关闭</el-button>
+    </template>
+  </el-dialog>
+</div>

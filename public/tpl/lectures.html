@@ -1,0 +1,35 @@
+<div data-guide="lectures-list">
+  <div v-if="!store.lectures.length" class="panel">
+    <div class="empty" style="padding:60px 20px">
+      <el-icon><Reading /></el-icon>
+      还没有讲义<br />
+      到「讲义排版」新建一份，导入内容后可以打印或存成 PDF
+      <div style="margin-top:16px"><el-button type="primary" @click="go">去新建讲义</el-button></div>
+    </div>
+  </div>
+
+  <div class="grid-3" v-else>
+    <div class="panel" v-for="l in sorted" :key="l.id">
+      <div class="panel-pad">
+        <div style="display:flex;align-items:flex-start;gap:8px">
+          <div style="flex:1;min-width:0">
+            <div style="font-size:14.5px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.title }}</div>
+            <div class="muted" style="margin-top:5px">
+              {{ [l.grade, l.subject].filter(Boolean).join(' · ') || '未设置学段' }}
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:14px;margin-top:12px;font-size:12px;color:var(--text-sub)">
+          <span>{{ l.sectionCount }} 个章节</span>
+          <span>{{ l.questionCount }} 道题</span>
+        </div>
+        <div class="muted" style="margin-top:8px">更新于 {{ fmtDate(l.updatedAt) }}</div>
+        <div style="display:flex;gap:6px;margin-top:14px">
+          <el-button size="small" type="primary" plain @click="open(l)">打开</el-button>
+          <el-button size="small" @click="duplicate(l)">复制</el-button>
+          <el-button size="small" text type="danger" @click="remove(l)">删除</el-button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

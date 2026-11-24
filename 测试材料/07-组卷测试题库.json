@@ -1,0 +1,1297 @@
+{
+  "questions": [
+    {
+      "no": "1",
+      "stem": "下列关于惯性的说法，正确的是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "物体运动得越快，惯性越大"
+        },
+        {
+          "key": "B",
+          "text": "静止的物体没有惯性"
+        },
+        {
+          "key": "C",
+          "text": "惯性是物体保持原有运动状态的性质"
+        },
+        {
+          "key": "D",
+          "text": "受力与否决定有没有惯性"
+        }
+      ],
+      "answer": "C",
+      "analysis": "惯性是物体保持原来运动状态不变的性质，一切物体在任何情况下都有惯性，与速度、受力、质量无关。",
+      "knowledge": [
+        "牛顿第一定律",
+        "惯性"
+      ],
+      "difficulty": "简单",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "力学",
+        "基础"
+      ],
+      "figures": []
+    },
+    {
+      "no": "2",
+      "stem": "如图所示电路中，电源电压保持不变。闭合开关后，滑动变阻器的滑片向右移动，灯泡的亮度将（　　） [图1] ",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "变亮"
+        },
+        {
+          "key": "B",
+          "text": "变暗"
+        },
+        {
+          "key": "C",
+          "text": "不变"
+        },
+        {
+          "key": "D",
+          "text": "无法判断"
+        }
+      ],
+      "answer": "B",
+      "analysis": "滑片右移时接入电路的电阻变大，电路总电阻变大，电流减小，灯泡变暗。",
+      "knowledge": [
+        "欧姆定律",
+        "动态电路"
+      ],
+      "difficulty": "中等",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "电学"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "电路图：电源、开关、定值电阻、滑动变阻器与灯泡串联",
+          "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAAFbCAYAAADLKrRrAAAJS0lEQVR42u3dW24rRxJFUY6k5j/LEiD9CIKKj3xEZUasBfCjuw3h3uIRY7ct248TAGAzD48AABAwAAACBgBAwAAAAgYAQMAAAAgYAEDAAAAIGAAAAQMACBgAAAEDACBgAAABAwAgYAAABAwAIGAAAAQMAICAAQAQMACAgAEAEDAAAAIGABAwAAACBgBAwAAAAgYAQMAAAAgYAPjrOI7vFwIGAAQMAgYABAwCBgAEjIABAAGDgAEAAYOAAQABI2AAQMAgYABqHs2rFwIGAQMgYBAwAgYAx9J7goABcCzxniBgABxLPn1P/GU9AQOAgBEwCBiAKkcTEDAAAgYEDABRYQMIGAABAwIGAAEDAgYAAQMCBmD1QPFDvCBgAAQM098fBAwAbBGUgkbAAECKcBEyAgYAloyXnj8eAQMA0+Plzq+DgAGA0OgQMQIGgEGHlNjYEDECBoDOw+l4xj8r74OAAaDxWDqc7c9txa+LgAEoEy6O5nvP7uq/W+XrImAASkSLQ/lZZLzzv931dREwAKKFl8+s5ZnO+JoIGADRwr/PtjVIWv5Y75mAASgfLox5vr1/7IzQQcAApIoWRy82YM7BP9fivRQwAKXChTnPvCd6Wt8j76uAARAthATMOfCf7eI9FjAAooWwgDkH/esBvN8CBiBFtDhkAgYBA7BNuLBXwPhLSAIGoGy0rHK0Kh/RkT9464d4BQxA6oDJ8mchMr5Xvc/K30YtYABSBUy2PwuR9f1a8Y9DwAAIAoe06fff8+9C8twFDNDw//x3fwkYv97o75tRz8e/zFHAAAJGwPj13hIxvc/m1dcULwIGEDCCQMBM+95Z9WsjYCDdh7Dfh1+/gBkTGqt/bQQMCBi/DwHje2haZIgXAQMIGL9+zzssYsSLgAEcIgHj17tdwIz6IV7PWcAAAsav3/O+JWJa/jkw4kXAbD96Ly9/90697yPP28s+BYwPAi8vAeN98Ly9fE4IGB8EXj6YfB95H3xu+ZwQMPhrydif3wf4/hIwhgECBvD9JWAMA/vz+wCfE76/BIxhYH9+H+D7S8AYBtif7yPw/SVgDIO6+/N3SQDulIAxDASMgAF3SsAYBggYAQPulIAxDABwpwSMYQDgTgkYwwAAd0rAGAYAuFMCxjDg6Z79gC24UwLGMEDAAO6UgDEMmLnn1v8dcKcEjGGAgAHcKQFjGCBgwJ0SMBgGAgZwpwSMYcBKe/ZDvOBOCRjDAAEDuFMCxjBg5p6v/jPgTgkYwwABA7hTAsYwYHTACBlwpwSMYYCAAdwpAWMYEBUwQgbcKQFjGCBgAHdKwBgGALhTAsYwAHCnBIxhAIA7JWAMAwDcKQFjGAC4UwLGMADAnRIwhgEA7pSAMQwA3CkBYxiGAYA7JWAMAwDcKQFjGAC4UwgYwwDAnRIwhgEA7pSAMQwAcKcEjGEA4E4JGMMAAHdKwBgGALhTAsYwAHCnBIxhAIA7JWAMAwDcKQFjGAC4UwLGMADAnRIwhgEA7pSAMQwA3CkBYxgA4E4JGMMAAHdKwBgGAO6UgMEwAHCnBIxhAIA7JWAMAwB3yp0SMIYBgDslYAwDANwpAWMYAOBOCRjDAMCdEjCGAQDulIAxDABwpwSMYQDgTgkYwwAAd0rAGAYAuFMCxjAAcKcEjGEAgDslYAwDANwpAWMYALhTAsYwDAMAd0rAGAYAuFMCxjAAcKfcKQFjGAC4UwLGMADAnRIwhgEA7pSAMQwA3CkBYxgA4E4JGMMAAHdKwBgGAO6UgDEMAHCnBIxhAIA7JWAMAwB3SsAYBgC4UwLGMADAnRIwhgGAOyVgDMMwAHCnBIxhAIA7JWAMAwB3SsB4BIYBgDslYAwDANwpAWMYAOBOCRjDAMCdEjCGAQDulIAxDABwpwSMYQDgTgkYwwAAd0rAGAYAuFMCxjAAcKcEjGEAgDslYAwDANwpAWMYALhTAsYwAMCdEjCGAQDulIAxDADcKQGDYQDgTgkYwwAAd0rAGAYA7pQ7JWAMAwB3SsAYBgC4UwLGMADAnRIwhgGAOyVgDAMA3CkBYxgA4E4JGMMAwJ0SMIYBAO6UgDEMAHCnBIxhAOBOCRjDAAB3SsAYBgC4UwLGMABwpwSMYRgGAO6UgDEMAHCnBIxhAOBOIWAMAwB3SsAYBgC4UwLGMADAnRIwhgGAOyVgDAMA3CkBYxgA4E4JGMMAwJ0SMIYBAO6UgDEMAHCnBIxhAOBOCRjDAAB3SsAYBgC4UwLGMABwpwSMYQCAOyVgDAMA3CkBYxgAuFMCBsMAwJ0SMIYBAO6UgDEMANwpd0rAGAYA7pSAMQwAcKcEjGEAgDslYAwDAHdKwBgGALhTAsYwAMCdEjCGAYA7JWAMAwDcKQFjGADgTgkYwwDAnRIwhgEA7pSAMQwAcKcEjGEA4E4JGMMwDADcKQFjGADgTgkYwwDAnXKnBIxhAOBOCRjDAAB3SsAYBgC4UwLGMABwpwSMYeB5A/jcFDCG4XkD4HNTwBiG5w3gc1PAGAaeN4DPTQFjGJ635w3gc1PAGIbnDeBzU8AYBp43gM9NAWMYeN4APjcFjGHUft7eN8DnpoAxDMMQMADulIAxDAQMgDslYAzD8/a+AT43PQwBYxgCBsCdEjCGgYABcKcEjGF43t43AJ93AsYwBAyAOyVgcg7DK/blffPy8vKK+9wUMALGS8B4eXl5CRgBI2B8I3rfvLy8vASMgMHPwAAgYEDAACBgEDACBgABg4ABQMCAgAFAwICAAUDAIGAEDICAAQEDgIAB4QGAgEHAAICAQcAAIGBAwAAgYBAwACBgEDAACBgQMAAIGAQMAAgYAEDAAAAIGAAAAQMACBgI9vsHfJ+9ABAwIGAAEDDQGzAAIGAQMAAIGBAwAAgYEDAACBh2Dxg/vAuAgEHAACBgYHbAAICAQcAAIGBAwAAgYEDAACBg2D1g/DAvAAIGAQOAgAEAEDAAAAIGABAwAAACBgBAwAAAAgYAQMAAAAgYAEDAAAAIGAAAAQMAIGAAAAEDACBgAAAEDAAgYAAABAwAgIABAAQMAICAAQAQMACAgAEAEDAAAAIGABAwAAACBgBAwAAAAgYAQMAAAAgYAAABAwAIGAAAAQMAIGAAAAEDACBgAAAEDAAgYAAABAwAgIABAAQMAICAAQAQMACAgAEAEDAAAAIGAODHF+U2OCx09RQzAAAAAElFTkSuQmCC"
+        }
+      ]
+    },
+    {
+      "no": "3",
+      "stem": "一个物体受到 30 N 的水平拉力，在水平面上匀速直线运动，则它受到的摩擦力大小为 ______ N，方向是 ______。",
+      "type": "填空题",
+      "options": [],
+      "answer": "30；水平向左",
+      "analysis": "匀速直线运动时合力为零，摩擦力与拉力是一对平衡力，大小相等、方向相反。",
+      "knowledge": [
+        "二力平衡",
+        "摩擦力"
+      ],
+      "difficulty": "简单",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "力学"
+      ],
+      "figures": []
+    },
+    {
+      "no": "4",
+      "stem": "如图是光从空气射入玻璃时的折射情况。图中 ______ 是法线，折射角 ______ 反射角（选填\"大于\"\"小于\"或\"等于\"）。 [图1] ",
+      "type": "填空题",
+      "options": [],
+      "answer": "竖直虚线；小于",
+      "analysis": "过入射点垂直于界面的那条虚线是法线；光从空气斜射入玻璃时折射角小于入射角（此处入射角等于反射角）。",
+      "knowledge": [
+        "光的折射",
+        "光的反射"
+      ],
+      "difficulty": "较难",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "光学"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "光路图：界面上方为空气，下方为玻璃，含法线、入射光线、反射光线与折射光线",
+          "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAAF9CAYAAAAa31JAAAALFUlEQVR42u3dQW7aQBiG4ZyEdddd9yQ9CWfqIXo1KkVKVCFsPODfnm/meSQWEIIcSzPzAsr44wYAEObDKQAABAwAgIABRnO5XD5vr/4cQMAAAgYQMAACBhAwgIABEDBALwGzFCoCBhAwgIABBAzAXgGz9T6AgAEEDCBgAN4NmPvHBQwgYAABAwgYgKqA2fpzAAEDCBhAwAB8uV6vnzcBAwgYQMAAAsYpAI4OGAABAwgYQMAACBhAwAACBkDAAAIGEDAAAgYQMAACBhAwgIABEDCAgAEEDICAAQQMAICAAQAEDBzh76+f3zcAEDDEBYyIAUDAEBkwIgYAAUNkwIgYAAQMkREDAAIGEUMZ+8AAAgYRI2IEDICAQcQgYAABAyIGAQMIGBAxAgZAwDBwwIgYAQMIGIiMGAQMIGBAxCBgAAEDIkbAAAgYEDECBhAwIGIQMICAAREjYAQMIGCgPWBEDICAgciIAUDAgIgBQMCAiAFAwICIARAwIGIAEDAgYgAQMNAeMCIGQMBAZMRQz0Z2gIABESNgAAQMIkbECBhAwICIQcAAAgZEjIABEDAgYgQMIGBgvIARMQIGEDAQGTEIGEDAgIgRME4EIGBAxAgYAAEDIkbAAAIGRAwCBhAwIGIAEDDQHjAiBkDAQGTEACBgQMQAIGBAxAAIGEDEAAgYEDEACBgQMQACBmgPGBGzzkZ2gICBTiMGAQMIGBAxAgZAwICIETCAgAFEjIABBAyIGAEDIGBAxAgYQMAA7QEjYgQMIGAgMmIQMICAAREjYAAEDIgYAQMIGEDECBhAwICIAUDAgIgBEDBAe8CIGAABA5ERA4CAAREDIGAAEQMgYAARAyBgQMTksA8MIGBAxAgYAAED/QTMqBEjYAABAyJGwAAIGOgzZAQMgIABESNgAAEDHBEwo0SMgAEEDEwWMQIGQMCAiBEwgIABRIyAAQQMMGDECBhAwICIETAAAgZEDICAAcoDRsQACBiIjBgABAyIGAABA4gYAAEDiBgAAQMiBkDAACIGQMAA7QHTa8TYyA4QMMBqxAgYQMAAIkbAAAIGmDFiBAwgYIC4iBEwgIAB4iJGwAACBoiLGAEDCBigOWDOjhgBAwgY4KWIETCAgAFEjIABBAwwcsQIGEDAAHERI2AAAQNERgyAgAFEDICAgTkDRsQAAgaIjBgAAQOIGAABA4gYAAEDiBhAwAAiBkDAAANGjI3sAAEDlAfM3hEjYAABAxwSMQIGEDDA1BEjYAABA8RFjIABBAwQFzECBhAwQFzECBhAwABxESNgAAEDnBYwr0aMgAEEDHBqxAgYQMAAU0SMgAEEDBAXMQIGEDBAZMQACJgH7+zu3909evz/x7wbBBEDCJjT4mXP+4CIAQSMgIFJAkbEAAKmOGB8hQQ1EQMgYBoCZi1Klu6LFxAxgIA5NWBevS9iQMQAAqa7gFn6L6S13wdqIsbXtoCAAeIiRsAAAgaIixgBAwgYICZgviJGwAACBoiKGAEDCBggMmIEDCBggNiIARAwQETE/Pj95/sGMGTAPNpZd8ut8vUd+3uv3+N5cezHHft9wGyJGGPJsRtLGccuYAwgg9+xD3fs99HSEjHGkmM3lgRMXMAA+Z7Fi6+SAAEDxMWLiAEEDNB9uKw9B0DAAF3Fy9bnAggYoNt4ETGAgAG6DJetMSJiAAEDRMWLiAEEDNBFvOz1WgACBug2XkQMIGCAU8Jlr9gQMYCAAQ6Jl1bPtigXMYCAAbqKly0BI2IAAQOUhMs7QSFgAAEDHB4v79p6lVsRA0wTMI8uAb42US5dMnzpcuLplxmHs+OlJWBEDDBFwDyKkLWAeff5MFO47BkOrW8ARAwwVcC0Pi5gEC/18fJKwIgYYIqAuf+KpzVgbhu/WoIZ4qVqrO4RMCIGGCpgHgXN2iT6LEp8IoN4OT9gbj6FAQTM+vMFDLOHS3UYvPMppogBhguY28J/CS190rIWPP4DiVnj5chxuuexA9zsAwPipeeAETGAgAHhErv4ixhAwMCk8TLa3wQIGEC8iBhAwAB9hMtoi7yIAQQMiBcRAwgYoJ94mfHvBgQMIF4EDCBggPpwmW0RFzEgYIDweOlV9W7WIgYEDCBe4gJGxICAAcLCJWGhPup6YiIGBAwQEC8pBAwgYEC8xC3MR17RXcSAgAE6DJfEBfnIgBExIGAA8RIZMCIGBAzQSbwkOyNgRAwIGEC8CBhAwADbwmWUBfesgBExIGCAg+NlJGcGjIgBAQOIl8iAETEgYIDCcLGoihhAwEBUvCBgAAED4gURAwIGqAgXi6eIAQQMiBdEDAgYoCpeEDGAgAHxgoABAQNUhMvMi2MP+8CIGBAwQGO8zK7ngBExIGBAvFgIIwNGxICAAeFiAYwMGBEDAgamjxcEDCBgQLwIGBEDCBioCBcL3RgBI2JAwIB4ITJgRAwIGBg+XhgzYEQMCBgQLwImMmBEDAgYGCpcLGICBhAwEBUvzBUwIgYEDIgXRAwgYOCocLFYIWJAwEBUvICIAQED4gUBAwgYqAgXixIiBgQMiBdEDCBgoCpeQMSAgAHxgogBBAxUhIsFp176RnYCBgQMdBUvCBgRAwIGxAtTBoyIAQED5eFiYREwIgYEDETFCwJGxICAAfGCgBEwIGCgIlwsIAJGxICAAfGCgBExIGCgKl4QMCIGBAyIFwSMiAEBAxXhYnEQMAIGBAxExQsCRsSAgAHxAiIGBAxUhItFABEDAgai4gVEDCBgEC8gYEDAQEW4mOwRMYCAQbyAiAEBA1XxAiIGEDCIFxAxIGCgIlxM5OOYfSM7AQMChkniBQEjYgABg3hBwIgYEDBQES4mbAFjbBgTIGCIihcEDCIGBAziBQFjnICAgYoJ2aQsYNg+ZgABg3hBwIgYEDDQFi8IGEQMCBhiwsXkK2AQMSBgEC8IGBEDAsYpoCpeQMAIGBAwiBcwxowvEDBUhIvJFUQMCBii4gUQMSBgEC+AiAEBQ0W4mEBBwICAISpeABEDAgbxAogYEDBUhIuJkhb2gRExIGAQLwgYRAwIGFriBQSMgAEBg3hBwCBiQMBQES4mQgSMiAEBQ1S8gIARMSBgEC8IGEQMCBgqwsVkh4ARMCBgiIoXEDAiBgQM4gUEjIgBAUNFuJjUEDAiBgQM4gUEjIgBAUNVvAACBgQM4gUQMSBgqAgXkxaYF8wHCBii4gXA3ICAQbwAIgYEDBXhYmICBAwChqh4ARAxCBhMRIC5AwQMVZMQ9MZGdiIGBAyrExAIGEQMAgZAwEwZMCIGAQMIGAEjYkDAAAIGEQMCBhAwrEQMCBhAwCBiQMAAAgYRg4ABEDCIGAQMgIARMSBgAAGDgAEBAwgYRAwCBgARAwIGABEDAgYAEYOAAUDAgIABQMSAgAFAxCBgAEDEIGAAEDEgYIDO2MhOwICAAQQMIgYEDCBg2DtiQMAAAoa4iAEBAwgYAAEDCBhAwAAIGEDAAAIGQMAAAgYQMAACBhAwgIABEDCAgAEEDACAgAEAEDAAgIABABAwAAACBgBAwAAAAgYAQMAAAAgYAEDAAAAIGAAAAQMACBgAAAEDACBgAAABAwAgYAAABAwAIGAAAAQMAICAAQAEDACAgAEAEDAAAAIGABAwAAACBgBAwAAAAgYAQMAAAAgYAEDAAAAIGAAAAQMACBgAAAEDACBgAAABAwAgYAAABAwAgIABAAQMAICAAQAQMACAgAEAEDAAAAIGABAwAAACBgBAwAAAAgYAQMAAAAgYAEDAAAAIGAAAAQMACBinAAAQMAAAxf4BCpUYGJtfHggAAAAASUVORK5CYII="
+        }
+      ]
+    },
+    {
+      "no": "5",
+      "stem": "如图所示，杠杆处于水平平衡状态。已知支点O到A点的距离为 20 cm，到B点的距离为 30 cm，A点悬挂的物体重 90 N，求B点所挂钩码的重力。 [图1] ",
+      "type": "解答题",
+      "options": [],
+      "answer": "60 N",
+      "analysis": "由杠杆平衡条件 F₁L₁ = F₂L₂，得 90 N × 20 cm = F₂ × 30 cm，解得 F₂ = 60 N。",
+      "knowledge": [
+        "杠杆平衡条件"
+      ],
+      "difficulty": "较难",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "力学",
+        "计算"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "杠杆示意图：水平杠杆，O 为支点，左端 A 悬挂重物，右端 B 悬挂钩码",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "6",
+      "stem": "在探究\"电流与电压、电阻的关系\"实验中：\n（1）实验器材除了电源、开关、导线外，还需要 ______ 和 ______；\n（2）滑动变阻器的作用是 ______；\n（3）若闭合开关后电流表无示数，电压表示数接近电源电压，故障可能是 ______（选填\"灯泡短路\"或\"灯泡断路\"）。",
+      "type": "实验探究题",
+      "options": [],
+      "answer": "电流表；电压表；改变待测电阻两端电压（多次测量取平均值）；灯泡断路",
+      "analysis": "电压表与待测电阻并联、电流表串联；滑动变阻器用于改变电阻两端电压；电压表示数接近电源电压说明与电压表并联的元件断路。",
+      "knowledge": [
+        "欧姆定律",
+        "实验探究"
+      ],
+      "difficulty": "中等",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "电学",
+        "实验"
+      ],
+      "figures": []
+    },
+    {
+      "no": "7",
+      "stem": "下列各数中，最小的数是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "−2"
+        },
+        {
+          "key": "B",
+          "text": "−0.5"
+        },
+        {
+          "key": "C",
+          "text": "0"
+        },
+        {
+          "key": "D",
+          "text": "1"
+        }
+      ],
+      "answer": "A",
+      "analysis": "在数轴上，越靠左的数越小，故 −2 最小。",
+      "knowledge": [
+        "有理数大小比较"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "数与式"
+      ],
+      "figures": []
+    },
+    {
+      "no": "8",
+      "stem": "如图是二次函数 y = x² − 2x − 3 的图象，下列结论错误的是（　　） [图1] ",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "开口向上，对称轴为直线 x = 1"
+        },
+        {
+          "key": "B",
+          "text": "与 x 轴的交点为 −1 和 3"
+        },
+        {
+          "key": "C",
+          "text": "当 x = 1 时，y 的值最小"
+        },
+        {
+          "key": "D",
+          "text": "当 x > 0 时，y 随 x 增大而增大"
+        }
+      ],
+      "answer": "D",
+      "analysis": "当 x > 1 时 y 才随 x 增大而增大，0 < x < 1 时 y 反而减小，故 D 错误。",
+      "knowledge": [
+        "二次函数"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "函数"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "二次函数 y = x² − 2x − 3 的图象",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "9",
+      "stem": "在如图所示的数轴上，点 A 表示的数是（　　） [图1] ",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "−2"
+        },
+        {
+          "key": "B",
+          "text": "−0.5"
+        },
+        {
+          "key": "C",
+          "text": "0.5"
+        },
+        {
+          "key": "D",
+          "text": "2"
+        }
+      ],
+      "answer": "B",
+      "analysis": "数轴上右边的数比左边的大，点 A 位于原点与 −1 之间，表示 −0.5。",
+      "knowledge": [
+        "数轴",
+        "有理数"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "数与式"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "数轴示意图，标出了点 A",
+          "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAjAAAADKCAYAAAC7Z3o5AAAEYklEQVR42u3dSVLkQBBEUZ1Eh2DN2blasWYyjSjTI94zS+sFvXCEgA8UxfICAAizuAQAgIABABAwAAACBgAQMAAAAgYAQMAAAAIGAEDAAAAIGABAwAAACBgAAAEDAAgYAAABAwAgYAAAAQMAIGAAAAQMAICAAQAEDACAgAEAEDAAgIABABAwAAACBgAQMAAAAgYAQMAAAAIGAEDAAAAIGABAwAAACBgAAAEDACBgAAABAwAgYAAABAwAIGAAAAQMAICAAQAEDACAgAEAEDAAgIABABAwAAACBgAQMAAAAgYAQMAAAAIGAEDAAAAIGAAAAQMACBgAAAEDACBgAAABAwAgYAAABAwAIGAAAAQMAICAAQAEDACAgAEAEDAAgIABABAwAAACBgBAwAAAAgYAQMAAAAgYAEDAAAAIGAAAAQMACBgAAAEDjPDx/vbrARAwgIABEDDAXeFy9uUAAgYQMAACBhAwgIABBAyAgAEEDICAAQQMIGCALgGzdQAEDCBgAAQMcDVgzr4cQMAAAgZAwAACBhAwgIABEDAAwH9Z1/XLETCTvoGSby7bbR+5/cnfQHLtbbd9XMAc2ZN43QWM7bY32v70r1G79rbbPj5g9uwSMG5u222fdvveeLkzYlx7223PCBkBM+ANYrvtR/d33L4VKXdHjOtuu4+TGSGTfN2X5Jsj4ULbbvsM2/eGyR0Bk3rd3Te2V92+tTH1/bVEwMx8oW23fYbte6PkasC47rbbPud2ARNWj47jrD+i5Mj/d/0cp+8RMALGcQSM4zgCRsA4jiNgHMcRMB4DY7vtHgPjMTC22+4xMALm+Qtvu+227w8Yv4XkvrG913bfgZn0DWC77Uf3d9zueWBs97Gm33bPAzPpjZLIdttHbvdMvLbb3mO7Z+J1g9hue7nt/haS7bbX3e5vIblBbLe99HZ/jdp223sFTNXrLmBst912+223vWDAVL/uywsAIIyAgYm/mkvenv6VNCBggJMBUOGTf9rrkf5jOxAwgO8CXNydGgMCBgQMsPGV/l8/bkkPmO//ChhAwECTwEkOs+TXQ8CAgAEaBkz66yFgQMAAJz+BVng+jNR48UBeEDAAAAIGAEDAAAACBgBAwAAACBgAQMAAAAgYAAABAwAIGAAAAQMAIGAAAAEDACBgAAAEDAAgYAAABAwAgIABAAQMAICAAQAQMAAAAgYAEDAAAAIGAEDAAAACBgBAwAAACBgAQMAAAAgYAAABAwAIGAAAAQMAIGAAAAEDACBgAAAEDACAgAEABAwAgIABABAwAICAAQAQMAAAAgYAEDAAAAIGAEDAAAACBgBAwAAACBgAQMAAAAgYAAABAwAIGAAAAQMAIGAAAAQMACBgAAAEDACAgAEABAwAgIABABAwAICAAQAQMAAAAgYAEDAAAAIGAEDAAAACBgBAwAAACBgAAAEDAAgYAAABAwAgYAAAAQMAIGAAAAQMACBgAAAEDACAgAEABAwAgIABALjuE5Nl5/4hWmesAAAAAElFTkSuQmCC"
+        }
+      ]
+    },
+    {
+      "no": "10",
+      "stem": "已知 a > 0，b < 0，且 a + b < 0，则下列结论正确的是（　　）",
+      "type": "多选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "a < −b"
+        },
+        {
+          "key": "B",
+          "text": "ab < 0"
+        },
+        {
+          "key": "C",
+          "text": "a ÷ b < 0"
+        },
+        {
+          "key": "D",
+          "text": "a² > b²"
+        }
+      ],
+      "answer": "ABC",
+      "analysis": "a + b < 0 且 b < 0 移项得 a < −b，A 正确；a、b 异号，ab < 0、a÷b < 0，B、C 正确；D 无法确定。",
+      "knowledge": [
+        "有理数运算",
+        "不等式"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "数与式"
+      ],
+      "figures": []
+    },
+    {
+      "no": "11",
+      "stem": "计算：√9 + (−2)² − |−3| = ______。",
+      "type": "填空题",
+      "options": [],
+      "answer": "10",
+      "analysis": "√9 = 3，(−2)² = 4，|−3| = 3，故 3 + 4 − 3 = 10。",
+      "knowledge": [
+        "实数运算"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "数与式"
+      ],
+      "figures": []
+    },
+    {
+      "no": "12",
+      "stem": "如图，在 Rt△ABC 中，∠C = 90°，AC = 6，BC = 8，则斜边 AB 的长为 ______。 [图1] ",
+      "type": "填空题",
+      "options": [],
+      "answer": "10",
+      "analysis": "由勾股定理 AB = √(AC² + BC²) = √(36 + 64) = 10。",
+      "knowledge": [
+        "勾股定理"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "三角形"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "直角三角形 ABC，∠C = 90°，AC = 6，BC = 8",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "13",
+      "stem": "一个圆柱形容器的底面半径为 3 cm，高为 8 cm，将它装满水后倒入一个底面半径为 4 cm 的圆锥形容器中（水不溢出），圆锥的高为 ______ cm。",
+      "type": "填空题",
+      "options": [],
+      "answer": "6",
+      "analysis": "V柱 = π×3²×8 = 72π，V锥 = (1/3)π×4²×h = (16/3)πh，令两者相等得 h = 6。",
+      "knowledge": [
+        "圆柱与圆锥体积"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "立体几何"
+      ],
+      "figures": []
+    },
+    {
+      "no": "14",
+      "stem": "计算：\n（1）(−2)² + 3 × (−1)³ ÷ 2；\n（2）解方程 x/2 − 1 = (x − 4)/3。",
+      "type": "解答题",
+      "options": [],
+      "answer": "（1）−1/2；（2）x = −2",
+      "analysis": "（1）4 + 3×(−1)÷2 = 4 − 1.5 = −0.5；（2）去分母得 3x − 6 = 2x − 8，解得 x = −2。",
+      "knowledge": [
+        "实数运算",
+        "一元一次方程"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "数与式",
+        "方程"
+      ],
+      "figures": []
+    },
+    {
+      "no": "15",
+      "stem": "如图，⊙O 的半径为 5，弦 AB 距圆心 O 的距离为 3，求弦 AB 的长。 [图1] ",
+      "type": "解答题",
+      "options": [],
+      "answer": "8",
+      "analysis": "过 O 作 OC ⊥ AB 于 C，由垂径定理得 AC = BC = √(5² − 3²) = 4，所以 AB = 2×4 = 8。",
+      "knowledge": [
+        "垂径定理",
+        "勾股定理"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "圆"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "圆 O 与弦 AB，半径 5，圆心到弦的距离为 3",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "16",
+      "stem": "某商店购进一批文具，进价每件 20 元。市场调查发现：售价每件 25 元时每天可售出 250 件，售价每涨 1 元每天少售 10 件。设售价定为每件 x 元，每天利润为 w 元。\n（1）用 x 表示 w；\n（2）售价定为多少时每天利润最大？最大利润是多少？",
+      "type": "解答题",
+      "options": [],
+      "answer": "（1）w = (x − 20)[250 − 10(x − 25)] = −10x² + 700x − 5000；（2）x = 35 元时利润最大，为 2250 元",
+      "analysis": "销量为 250 − 10(x − 25)，利润 = (x − 20)×销量，配方得 w = −10(x − 35)² + 2250。",
+      "knowledge": [
+        "二次函数最值",
+        "销售问题"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "函数",
+        "应用题"
+      ],
+      "figures": []
+    },
+    {
+      "no": "17",
+      "stem": "在一个不透明的袋子里装有 4 个红球和 6 个白球，它们除颜色外完全相同。\n（1）从中随机摸出一个球，摸到红球的概率是多少？\n（2）若要使摸到白球的概率为 3/5，需要在袋中再放入几个白球？",
+      "type": "解答题",
+      "options": [],
+      "answer": "（1）2/5；（2）再放入 2 个白球",
+      "analysis": "（1）4 ÷ 10 = 2/5；（2）设放入 x 个白球，则 (6+x)/(10+x) = 3/5，解得 x = 2。",
+      "knowledge": [
+        "概率"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "统计与概率"
+      ],
+      "figures": []
+    },
+    {
+      "no": "18",
+      "stem": "如图，在△ABC 中，D、E 分别是 AB、AC 的中点，DE ∥ BC，DE = 6 cm。\n（1）求 BC 的长；\n（2）若 △ADE 的面积为 8 cm²，求 △ABC 的面积。 [图1] ",
+      "type": "解答题",
+      "options": [],
+      "answer": "（1）12 cm；（2）32 cm²",
+      "analysis": "DE 是中位线，等于 BC 的一半，故 BC = 12；△ADE 与 △ABC 相似比为 1:2，面积比为 1:4，故面积 32 cm²。",
+      "knowledge": [
+        "三角形中位线",
+        "相似三角形"
+      ],
+      "difficulty": "较难",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "三角形"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "△ABC 中 D、E 分别为 AB、AC 的中点，DE ∥ BC",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "19",
+      "stem": "一项工程，甲队单独做需要 12 天完成，乙队单独做需要 18 天完成。两队合作，需要多少天完成？",
+      "type": "应用题",
+      "options": [],
+      "answer": "72/10 = 7.2 天（即 7 天 4.8 小时）",
+      "analysis": "设合作需 x 天，则 x(1/12 + 1/18) = 1，解得 x = 36/5 = 7.2 天。",
+      "knowledge": [
+        "列方程解应用题",
+        "工程问题"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "方程",
+        "应用题"
+      ],
+      "figures": []
+    },
+    {
+      "no": "20",
+      "stem": "下列气体中，含量约占空气体积 1/5 的是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "氮气"
+        },
+        {
+          "key": "B",
+          "text": "氧气"
+        },
+        {
+          "key": "C",
+          "text": "二氧化碳"
+        },
+        {
+          "key": "D",
+          "text": "稀有气体"
+        }
+      ],
+      "answer": "B",
+      "analysis": "空气中氮气约占 78%，氧气约占 21%，二氧化碳约 0.03%。",
+      "knowledge": [
+        "空气的组成"
+      ],
+      "difficulty": "简单",
+      "subject": "化学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "化学"
+      ],
+      "figures": []
+    },
+    {
+      "no": "21",
+      "stem": "如图是实验室用高锰酸钾制取氧气的装置。下列说法正确的是（　　） [图1] ",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "试管口应略向下倾斜"
+        },
+        {
+          "key": "B",
+          "text": "导气管应伸入试管内"
+        },
+        {
+          "key": "C",
+          "text": "该反应属于分解反应"
+        },
+        {
+          "key": "D",
+          "text": "收集氧气时可用向下排空气法"
+        }
+      ],
+      "answer": "C",
+      "analysis": "试管口应略向上倾斜；导气管只需稍露出橡皮塞；该反应生成物有两种，属于分解反应；氧气密度比空气大，应用向上排空气法。",
+      "knowledge": [
+        "氧气的制取",
+        "分解反应"
+      ],
+      "difficulty": "中等",
+      "subject": "化学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "化学",
+        "实验"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "实验室制取气体装置示意图",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "22",
+      "stem": "在化学反应 A + B → C + D 中，已知 12 g A 与 10 g B 恰好完全反应，生成 8 g C，则生成 D 的质量是 ______ g。",
+      "type": "填空题",
+      "options": [],
+      "answer": "14",
+      "analysis": "由质量守恒定律，生成物总质量 = 12 + 10 = 22 g，故 D 为 22 − 8 = 14 g。",
+      "knowledge": [
+        "质量守恒定律"
+      ],
+      "difficulty": "中等",
+      "subject": "化学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "化学"
+      ],
+      "figures": []
+    },
+    {
+      "no": "23",
+      "stem": "实验室用 25 g 含杂质的氯酸钾（杂质不溶于水也不参加反应）加热制取氧气，充分反应后固体质量减少 8 g。求原固体中氯酸钾的质量分数。（反应式：2KClO₃ --Δ→ 2KCl + 3O₂↑）",
+      "type": "解答题",
+      "options": [],
+      "answer": "约 81.7%",
+      "analysis": "固体减少的质量即为生成的氧气质量：2KClO₃ ~ 3O₂，即 245 : 96。设氯酸钾质量为 x，则 245/96 = x/8 g，解得 x ≈ 20.4 g，质量分数 = 20.4/25 ≈ 81.7%。",
+      "knowledge": [
+        "化学方程式计算",
+        "质量守恒定律"
+      ],
+      "difficulty": "较难",
+      "subject": "化学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "化学",
+        "计算"
+      ],
+      "figures": []
+    },
+    {
+      "no": "24",
+      "stem": "某同学用稀盐酸与碳酸钠粉末反应制取二氧化碳。\n（1）应选用 ______ 装置收集二氧化碳；\n（2）反应方程式为 ______；\n（3）检验二氧化碳的方法是 ______。",
+      "type": "实验探究题",
+      "options": [],
+      "answer": "向上排空气法；Na₂CO₃ + 2HCl = 2NaCl + H₂O + CO₂↑；将气体通入澄清石灰水，变浑浊",
+      "analysis": "二氧化碳密度比空气大且能溶于水，故用向上排空气法收集；检验用澄清石灰水。",
+      "knowledge": [
+        "二氧化碳的制取",
+        "二氧化碳的检验"
+      ],
+      "difficulty": "中等",
+      "subject": "化学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "化学",
+        "实验"
+      ],
+      "figures": []
+    },
+    {
+      "no": "25",
+      "stem": "下列词语中，加点字读音完全正确的一项是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "解剖（pōu）　　畸形（jī）"
+        },
+        {
+          "key": "B",
+          "text": "解剖（pāo）　　畸形（qí）"
+        },
+        {
+          "key": "C",
+          "text": "解剖（pōu）　　畸形（jī）"
+        },
+        {
+          "key": "D",
+          "text": "解剖（pāo）　　畸形（jī）"
+        }
+      ],
+      "answer": "C",
+      "analysis": "「解」在此读 pōu；「畸」读 jī，不读 qí。",
+      "knowledge": [
+        "字音辨析"
+      ],
+      "difficulty": "简单",
+      "subject": "语文",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "基础字音"
+      ],
+      "figures": []
+    },
+    {
+      "no": "26",
+      "stem": "下列成语使用恰当的一项是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "他的发言鞭辟入里，让人茅塞顿开。"
+        },
+        {
+          "key": "B",
+          "text": "这道题他做得easy，简直是差强人意。"
+        },
+        {
+          "key": "C",
+          "text": "老师对我们的关怀无微不至，沤心沥血。"
+        },
+        {
+          "key": "D",
+          "text": "他目不暇接地浏览着满园春色。"
+        }
+      ],
+      "answer": "A",
+      "analysis": "「差强人意」意为大体还能使人满意；「目不暇接」形容事物太多看不过来；「沤心沥血」含贬义。",
+      "knowledge": [
+        "成语运用"
+      ],
+      "difficulty": "简单",
+      "subject": "语文",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "词语运用"
+      ],
+      "figures": []
+    },
+    {
+      "no": "27",
+      "stem": "阅读下面的文字，完成后面的题目。\n\n「故乡的秋，是从第一片叶子落下开始的。母亲把晾在院子里的白布收进来，抖一抖，秋天就落了一地。我们兄妹几个蹲在门槛上数落叶，母亲在灶间忙活着，锅盖上的白气一团一团往上冒。多年以后我才明白，那不是秋天落了一地，是母亲把一整个秋天都收进了灶间。」\n（1）用自己的话概括这段文字的主要内容。\n（2）画线句「那不是秋天落了一地，是母亲把一整个秋天都收进了灶间」运用了什么修辞手法？有什么表达效果？\n（3）文中的母亲是一个怎样的人？",
+      "type": "阅读理解题",
+      "options": [],
+      "answer": "（1）写童年故乡的秋天，母亲收布、做饭，\"我\"数落叶，回忆童年秋日情景。（2）比喻（或对比），把母亲的操劳比作\"收进秋天\"，含蓄地表现母亲的辛劳与\"我\"的感动、愧疚。（3）勤劳能干、疼爱孩子、含蓄沉默。",
+      "analysis": "第（2）问注意\"不是……是……\"的句式是把比喻与对比结合，突出母亲的辛劳。",
+      "knowledge": [
+        "记叙文阅读",
+        "修辞手法"
+      ],
+      "difficulty": "较难",
+      "subject": "语文",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "阅读理解"
+      ],
+      "figures": []
+    },
+    {
+      "no": "28",
+      "stem": "请以「原来，______也可以很美」为题，先把题目补充完整，再写一篇不少于 600 字的作文。\n要求：①补充的内容应与文章主题一致；②文章内容具体，有真情实感；③文中不得出现真实的校名和人名。",
+      "type": "作文题",
+      "options": [],
+      "answer": "见学生作文",
+      "analysis": "本题为半命题作文，考查审题、选材和表达。\"可以很美\"的立意要落实在具体事件与细节描写上，避免空泛抒情。",
+      "knowledge": [
+        "命题作文"
+      ],
+      "difficulty": "较难",
+      "subject": "语文",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "写作"
+      ],
+      "figures": []
+    },
+    {
+      "no": "29",
+      "stem": "— ______ do you go to school by? — By bike.",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "What"
+        },
+        {
+          "key": "B",
+          "text": "How"
+        },
+        {
+          "key": "C",
+          "text": "When"
+        },
+        {
+          "key": "D",
+          "text": "Where"
+        }
+      ],
+      "answer": "B",
+      "analysis": "问交通方式用 How；By bike 是方式状语。",
+      "knowledge": [
+        "特殊疑问句"
+      ],
+      "difficulty": "简单",
+      "subject": "英语",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "语法"
+      ],
+      "figures": []
+    },
+    {
+      "no": "30",
+      "stem": "If it ______ tomorrow, we will put off the sports meeting.",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "will rain"
+        },
+        {
+          "key": "B",
+          "text": "rains"
+        },
+        {
+          "key": "C",
+          "text": "rained"
+        },
+        {
+          "key": "D",
+          "text": "is raining"
+        }
+      ],
+      "answer": "B",
+      "analysis": "在 if 引导的条件状语从句中，用一般现在时表将来，从句主语 it 用第三人称单数，故用 rains。",
+      "knowledge": [
+        "条件状语从句"
+      ],
+      "difficulty": "中等",
+      "subject": "英语",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "语法"
+      ],
+      "figures": []
+    },
+    {
+      "no": "31",
+      "stem": "完形填空：\nLast summer I went to a small village in the mountains. The air there was fresh and the scenery was beautiful. I met an old farmer near the river. He was 1______ about his farm. When I asked him why he stayed there, he said, \"Because I 2______ here. This place is my 3______ .\" He asked me to 4______ the cows. The work was not easy, but I felt very 5______ . I learned that happiness sometimes comes from simple things.",
+      "type": "完形填空题",
+      "options": [
+        {
+          "key": "A",
+          "text": "proud　　B. grew　　C. home　　D. help　　E. tired"
+        }
+      ],
+      "answer": "A B C D E",
+      "analysis": "按上下文：老人对农场感到骄傲（proud），他在那里成长（grew），这里是他的家（home），他让我帮忙（help）喂牛，虽然累（tired）但感到充实。",
+      "knowledge": [
+        "完形填空",
+        "语境理解"
+      ],
+      "difficulty": "较难",
+      "subject": "英语",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "阅读理解"
+      ],
+      "figures": []
+    },
+    {
+      "no": "32",
+      "stem": "标志着中国新民主主义革命开始的事件是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "辛亥革命"
+        },
+        {
+          "key": "B",
+          "text": "五四运动"
+        },
+        {
+          "key": "C",
+          "text": "中国共产党成立"
+        },
+        {
+          "key": "D",
+          "text": "南昌起义"
+        }
+      ],
+      "answer": "B",
+      "analysis": "1919 年五四运动是中国新民主主义革命的开端。",
+      "knowledge": [
+        "中国近代史"
+      ],
+      "difficulty": "简单",
+      "subject": "历史",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "历史"
+      ],
+      "figures": []
+    },
+    {
+      "no": "33",
+      "stem": "下列关于地球运动的说法，正确的是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "地球自转一周约需 365 天"
+        },
+        {
+          "key": "B",
+          "text": "地球公转一周约需一年"
+        },
+        {
+          "key": "C",
+          "text": "地球自转方向是自西向东"
+        },
+        {
+          "key": "D",
+          "text": "北半球冬至日太阳直射北回归线"
+        }
+      ],
+      "answer": "C",
+      "analysis": "地球自转一周约 24 小时，方向自西向东；公转一周约一年；冬至日太阳直射南回归线。",
+      "knowledge": [
+        "地球运动"
+      ],
+      "difficulty": "简单",
+      "subject": "地理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "地理"
+      ],
+      "figures": []
+    },
+    {
+      "no": "34",
+      "stem": "如图是绿色植物细胞与动物细胞的亚显微结构模式图，下列说法正确的是（　　） [图1] ",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "两种细胞都有细胞壁、液泡和叶绿体"
+        },
+        {
+          "key": "B",
+          "text": "动物细胞没有细胞壁、叶绿体，通常也没有大液泡"
+        },
+        {
+          "key": "C",
+          "text": "图中序号 5 是控制物质进出的细胞膜"
+        },
+        {
+          "key": "D",
+          "text": "两种细胞都有能进行光合作用的叶绿体"
+        }
+      ],
+      "answer": "B",
+      "analysis": "动物细胞没有细胞壁、叶绿体和大液泡，只有细胞膜、细胞质、细胞核等基本结构。",
+      "knowledge": [
+        "细胞的结构"
+      ],
+      "difficulty": "中等",
+      "subject": "生物",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "生物"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "动植物细胞结构示意图",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "35",
+      "stem": "下列现象中，能说明植物进行蒸腾作用的是（　　）",
+      "type": "单选题",
+      "options": [
+        {
+          "key": "A",
+          "text": "叶子在阳光下变暖"
+        },
+        {
+          "key": "B",
+          "text": "叶片背面有较多水珠"
+        },
+        {
+          "key": "C",
+          "text": "清晨叶片上有露珠"
+        },
+        {
+          "key": "D",
+          "text": "移栽的植物出现萎蔫"
+        }
+      ],
+      "answer": "B",
+      "analysis": "叶片背面水珠多是因为水汽在叶背遇冷液化，是蒸腾作用散失的水分形成的。",
+      "knowledge": [
+        "蒸腾作用"
+      ],
+      "difficulty": "简单",
+      "subject": "生物",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "生物"
+      ],
+      "figures": []
+    },
+    {
+      "no": "36",
+      "stem": "如图是某班同学最喜欢的运动方式人数统计图。从图中可以看出，喜欢篮球的人数比足球多 ______ 人，占全班人数的 ______。 [图1] ",
+      "type": "图表分析题",
+      "options": [],
+      "answer": "2；25%",
+      "analysis": "读图可得篮球比足球多 2 人；全班 5 类共 40 人，10 人占 25%。",
+      "knowledge": [
+        "数据的分析"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "统计与概率"
+      ],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "某班同学最喜欢的运动方式人数统计图",
+          "url": "data:image/png;base64,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"
+        }
+      ]
+    },
+    {
+      "no": "37",
+      "stem": "判断：若 a > b，则 a² > b²。（　　）",
+      "type": "判断题",
+      "options": [
+        {
+          "key": "A",
+          "text": "正确"
+        },
+        {
+          "key": "B",
+          "text": "错误"
+        }
+      ],
+      "answer": "错误",
+      "analysis": "当 a、b 都为负数时不成立，如 a = −1 > b = −2，但 a² = 1 < 4 = b²。",
+      "knowledge": [
+        "平方差",
+        "有理数大小比较"
+      ],
+      "difficulty": "简单",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "数与式"
+      ],
+      "figures": []
+    },
+    {
+      "no": "38",
+      "stem": "判断：物体温度越高，分子热运动越剧烈。（　　）",
+      "type": "判断题",
+      "options": [
+        {
+          "key": "A",
+          "text": "正确"
+        },
+        {
+          "key": "B",
+          "text": "错误"
+        }
+      ],
+      "answer": "正确",
+      "analysis": "温度是分子热运动剧烈程度的标志，温度越高分子热运动越剧烈。",
+      "knowledge": [
+        "分子热运动"
+      ],
+      "difficulty": "简单",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "热学"
+      ],
+      "figures": []
+    },
+    {
+      "no": "39",
+      "stem": "一个电热器接到 220 V 电源上，通过它的电流为 5 A，求：\n（1）电热器的功率；\n（2）通电 10 min 产生的热量。",
+      "type": "计算题",
+      "options": [],
+      "answer": "（1）P = UI = 220 × 5 = 1100 W；（2）Q = Pt = 1100 × 600 = 6.6 × 10⁵ J",
+      "analysis": "P = UI = 1100 W；Q = W = Pt = 1100 W × 600 s = 6.6×10⁵ J。",
+      "knowledge": [
+        "电功率",
+        "焦耳定律"
+      ],
+      "difficulty": "较难",
+      "subject": "物理",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "电学",
+        "计算"
+      ],
+      "figures": []
+    },
+    {
+      "no": "40",
+      "stem": "请简述中学生应如何做到\"敬畏生命、珍爱生命\"，并结合一件小事说明理由。",
+      "type": "简答题",
+      "options": [],
+      "answer": "见学生作答",
+      "analysis": "答题要点：珍爱生命、尊重生命、热爱生命；学会自救与他救；不做伤害生命的事；举例要具体。",
+      "knowledge": [
+        "生命教育"
+      ],
+      "difficulty": "简单",
+      "subject": "道德与法治",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "道法"
+      ],
+      "figures": []
+    },
+    {
+      "no": "41",
+      "stem": "某校七年级 3 个班共 120 人参加植树活动，人均植树棵数分别为 5、6、7 棵。已知 3 个班人数比为 3:4:5，求这 3 个班各植树多少棵。",
+      "type": "计算题",
+      "options": [],
+      "answer": "人数比 3:4:5 对应 30 人、40 人、50 人，分别植树 150 棵、240 棵、350 棵",
+      "analysis": "总份数 3+4+5 = 12，每份 120÷12 = 10 人，三班分别 30、40、50 人；植树棵数 = 30×5 = 150、40×6 = 240、50×7 = 350 棵。",
+      "knowledge": [
+        "比例分配"
+      ],
+      "difficulty": "中等",
+      "subject": "数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "郑州市",
+      "source": "测试卷",
+      "chapter": "",
+      "tags": [
+        "应用题",
+        "计算"
+      ],
+      "figures": []
+    }
+  ]
+}

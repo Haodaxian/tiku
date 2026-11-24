@@ -1,0 +1,153 @@
+<div class="record-layout">
+  <div>
+    <div class="drop-zone" data-guide="record-upload" :class="{ dragging: dragging }"
+         @click="pick"
+         @dragover.prevent="dragging = true"
+         @dragleave.prevent="dragging = false"
+         @drop.prevent="onDrop">
+      <el-icon><Camera /></el-icon>
+      <p>点击选择、拖入图片，或直接 Ctrl + V 粘贴截图</p>
+      <span>可一次选多张 · 单张建议 5MB 以内</span>
+    </div>
+    <input ref="fileInput" type="file" accept="image/*" multiple style="display:none" @change="onFiles" />
+
+    <div class="thumb-list" v-if="images.length">
+      <div class="thumb" v-for="(im, i) in images" :key="im.id">
+        <img :src="im.url" style="cursor:zoom-in" @click="preview = im.url" />
+        <div class="del" @click.stop="removeImage(i)">×</div>
+      </div>
+    </div>
+
+    <div class="panel panel-pad mt-14">
+      <div class="mini-label">识别方式</div>
+      <el-radio-group v-model="mode" size="small">
+        <el-radio-button label="single">单题</el-radio-button>
+        <el-radio-button label="paper">整页多题</el-radio-button>
+      </el-radio-group>
+      <div class="muted" style="margin-top:6px;line-height:1.6">
+        单题：一张图就是一道题，只出一条结果。整页多题：把一页里的题目按顺序全部拆开。
+      </div>
+
+      <div class="mini-label" data-guide="record-meta">学段学科（可选，识别更准）</div>
+      <div style="display:flex;gap:8px;margin-bottom:4px">
+        <el-select :persistent="false" v-model="hintGrade" size="small" clearable placeholder="年级" style="flex:1">
+          <el-option v-for="g in GRADES" :key="g" :label="g" :value="g" />
+        </el-select>
+        <el-select :persistent="false" v-model="hintSubject" size="small" clearable filterable placeholder="学科" style="flex:1">
+          <el-option v-for="s in SUBJECTS" :key="s" :label="s" :value="s" />
+        </el-select>
+      </div>
+      <el-checkbox v-model="autoSolve" size="small" style="margin:2px 0 6px">
+        识别后自动生成答案与解析
+      </el-checkbox>
+
+      <div class="mini-label">存到题库</div>
+      <el-select :persistent="false" v-model="folderId" size="small" style="width:100%">
+        <el-option v-for="f in folderOptions" :key="f.id" :label="f.label" :value="f.id" />
+      </el-select>
+
+      <el-button type="primary" class="w-full mt-14" data-guide="record-go" :loading="recognizing" :disabled="!images.length || !store.settings.hasKey" @click="start">
+        {{ recognizing ? '识别中 ' + done + ' / ' + images.length + ' · ' + elapsed + 's' : (images.length ? '开始识别（' + images.length + ' 张）' : '请先添加图片') }}
+      </el-button>
+      <el-button v-if="images.length" class="w-full" style="margin:8px 0 0" size="small" @click="images = []">清空图片</el-button>
+
+      <div class="muted" style="margin-top:10px;line-height:1.7" v-if="recognizing">
+        多张并行识别中，一张通常 6–12 秒，结果会陆续出现在右侧。
+      </div>
+      <div class="hint-bar" style="margin:10px 0 0" v-if="!store.settings.hasKey">
+        <span>还没配置 API Key，点右上角去「设置」</span>
+      </div>
+    </div>
+
+    <div class="side-tip">
+      <div class="st-head"><el-icon><Opportunity /></el-icon>识别更准的小窍门</div>
+      <ul>
+        <li>镜头正对题目，别歪太多，四边都拍进去</li>
+        <li>字迹清晰、光线均匀，避免反光和阴影</li>
+        <li>一页一张图，不要把多页拼在一起</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="panel result-panel" data-guide="record-result">
+    <div class="panel-head">
+      识别结果
+      <span class="sub" v-if="results.length">共 {{ results.length }} 道 · 已选 {{ selected.length }} 道</span>
+      <div class="right">
+        <el-button size="small" text @click="toggleAll">{{ allSelected ? '取消全选' : '全选' }}</el-button>
+        <el-button size="small" type="primary" :disabled="!selected.length" :loading="saving" @click="save">
+          保存到题库
+        </el-button>
+      </div>
+    </div>
+
+    <div v-if="!results.length" class="empty result-empty">
+      <el-icon><DocumentAdd /></el-icon>
+      <div class="empty-title">识别结果会出现在这里</div>
+      <div class="empty-desc" style="margin-bottom:16px">识别出的题目可以逐条核对、改完再入库</div>
+      <div class="empty-steps">
+        <span><b>1</b> 添加图片</span>
+        <i></i>
+        <span><b>2</b> 开始识别</span>
+        <i></i>
+        <span><b>3</b> 核对保存</span>
+      </div>
+    </div>
+
+    <div v-else style="padding:14px 16px">
+      <div class="q-card" v-for="(q, i) in results" :key="q.id">
+        <div class="q-card-head">
+          <el-checkbox v-model="q._checked" />
+          <span class="no">第 {{ i + 1 }} 题</span>
+          <el-tag size="small" :type="typeTag(q.type)">{{ q.type }}</el-tag>
+          <el-tag size="small" effect="plain" :type="diffTag(q.difficulty)">{{ q.difficulty }}</el-tag>
+          <el-tag size="small" type="info" effect="plain" v-if="q.knowledge && q.knowledge.length">
+            {{ q.knowledge.join('、') }}
+          </el-tag>
+          <div style="margin-left:auto;display:flex;gap:2px">
+            <el-button size="small" text @click="openEdit(q)">编辑</el-button>
+            <el-button size="small" text type="primary" :loading="q._solving" @click="aiSolve(q)">AI 补答案</el-button>
+            <el-button size="small" text type="danger" @click="results.splice(i, 1)">删除</el-button>
+          </div>
+        </div>
+        <div class="q-card-body">
+          <div class="q-stem">
+            <span class="q-no-tag" v-if="q.no">{{ q.no }}.</span><span v-html="renderStem(q)"></span>
+          </div>
+          <div class="q-options" v-if="q.options && q.options.length">
+            <div class="q-option" v-for="o in q.options" :key="o.key">
+              <span class="k">{{ o.key }}</span><span v-html="rich(o.text)"></span>
+            </div>
+          </div>
+          <div class="q-figs" v-if="pendingFigures(q).length">
+            <figure v-for="(f, fi) in pendingFigures(q)" :key="f.id || fi">
+              <el-image v-if="figSrc(f)" :src="figSrc(f)" :preview-src-list="figureSrcs(q)" :initial-index="fi" fit="contain" />
+              <div v-else class="q-fig-none">图形待框选</div>
+              <figcaption>{{ f.label || ('图' + (fi + 1)) }}</figcaption>
+            </figure>
+          </div>
+          <div class="q-meta" v-if="q.subject || q.grade || (q.tags || []).length">
+            <el-tag size="small" type="info" effect="plain" v-if="q.subject">{{ q.subject }}</el-tag>
+            <el-tag size="small" type="info" effect="plain" v-if="q.grade">{{ q.grade }}</el-tag>
+            <el-tag size="small" type="success" effect="plain" v-for="t in q.tags" :key="'t' + t">#{{ t }}</el-tag>
+          </div>
+          <div class="q-answer" v-if="q.answer">答案：<span v-html="TK.renderAnswer(q)"></span></div>
+          <div class="q-analysis" v-if="q.analysis">{{ q.analysis }}</div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding-top:4px">
+        <el-button size="small" @click="results = []">清空结果</el-button>
+        <el-button size="small" type="primary" :disabled="!selected.length" :loading="saving" @click="save">
+          保存选中的 {{ selected.length }} 道
+        </el-button>
+      </div>
+    </div>
+  </div>
+
+  <q-edit v-model:visible="editVisible" :question="draft" :folders="store.folders"
+          :knowledge-options="knowledgeOptions" :tag-options="tagOptions" :gallery="store.gallery || []"
+          :saving="editSaving" @submit="applyEdit" />
+
+  <el-image-viewer v-if="preview" :url-list="[preview]" @close="preview = ''" />
+</div>

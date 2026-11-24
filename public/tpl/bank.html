@@ -1,0 +1,319 @@
+<div class="bank-layout">
+  <div class="panel" data-guide="bank-tree">
+    <div class="panel-head" style="padding:12px 14px">
+      题库
+      <div class="right" style="display:flex;gap:2px">
+        <el-button size="small" text type="primary" @click="createQuestion">+ 新增</el-button>
+        <el-button size="small" text @click="openFolderDlg('create', null, folderId === 'all' ? '' : folderId)">新建题库</el-button>
+      </div>
+    </div>
+    <div style="padding:8px;overflow:auto">
+      <div class="folder-item" :class="{ active: folderId === 'all' }" @click="folderId = 'all'">
+        <el-icon><Collection /></el-icon><span>全部题目</span><span class="count">{{ store.questions.length }}</span>
+      </div>
+      <div class="folder-item" v-for="row in flatFolders" :key="row.folder.id"
+           :class="{ active: folderId === row.folder.id }"
+           :style="{ paddingLeft: (6 + row.depth * 14) + 'px' }"
+           @click="folderId = row.folder.id">
+        <el-icon v-if="row.hasKids" class="fold-arrow" @click.stop="toggleFolder(row.folder.id)" :title="row.expanded ? '收起' : '展开'">
+          <ArrowRight v-if="!row.expanded" /><ArrowDown v-else />
+        </el-icon>
+        <span v-else class="fold-arrow fold-blank"></span>
+        <el-icon><Folder /></el-icon>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ row.folder.name }}</span>
+        <span class="count">{{ countDeep(row.folder.id) }}</span>
+        <el-icon class="del-folder" title="新建子题库" @click.stop="openFolderDlg('create', null, row.folder.id)" style="font-size:12px"><Plus /></el-icon>
+        <el-icon class="del-folder" title="编辑题库" @click.stop="openFolderDlg('edit', row.folder)" style="font-size:12px"><EditPen /></el-icon>
+        <el-icon v-if="store.folders.length > 1" class="del-folder" title="删除" @click.stop="removeFolder(row.folder)" style="font-size:12px"><Close /></el-icon>
+      </div>
+      <div v-if="!flatFolders.length" class="muted" style="padding:10px">还没有题库，点右上角新建一个</div>
+    </div>
+  </div>
+
+  <div class="panel" data-guide="bank-list">
+    <div class="panel-head" style="flex-wrap:wrap;gap:8px">
+      <el-input v-model="keyword" data-guide="bank-search" placeholder="搜题干、答案、知识点、标签、来源" size="small" clearable style="width:260px" :prefix-icon="'Search'" />
+      <template v-if="keyword.trim()">
+        <el-button size="small" text :disabled="!hitIds.length" @click="gotoHit(-1)" title="上一个命中">↑</el-button>
+        <span class="muted" v-if="hitIds.length">{{ hitPos < 0 ? 0 : hitPos + 1 }}/{{ hitIds.length }} 处</span>
+        <span class="muted" v-else>无命中</span>
+        <el-button size="small" text :disabled="!hitIds.length" @click="gotoHit(1)" title="下一个命中">↓</el-button>
+      </template>
+      <span class="muted">共 {{ filtered.length }} 道 · 已选 {{ checkedIds.length }}</span>
+      <div class="right" style="margin-left:auto;display:flex;gap:6px">
+        <el-select :persistent="false" v-model="sortBy" size="small" class="sort-select">
+          <el-option v-for="s in SORTS" :key="s.key" :label="s.label" :value="s.key" />
+        </el-select>
+        <el-button size="small" :loading="exporting" @click="exportJson">导出备份</el-button>
+        <el-dropdown trigger="click" data-guide="bank-word" @command="exportDocx">
+          <el-button size="small" :loading="exportingDocx" :disabled="!checkedIds.length">
+            导出 Word<el-icon style="margin-left:4px"><ArrowDown /></el-icon>
+          </el-button>
+          <template #dropdown>
+            <el-dropdown-menu>
+              <el-dropdown-item :command="false">试卷（不含答案）</el-dropdown-item>
+              <el-dropdown-item :command="true">试卷 + 答案解析</el-dropdown-item>
+            </el-dropdown-menu>
+          </template>
+        </el-dropdown>
+        <el-button size="small" data-guide="bank-paper" :disabled="!checkedIds.length" @click="openPaperSetup">生成试卷</el-button>
+        <el-button size="small" type="danger" plain :disabled="!checkedIds.length" @click="bulkDelete">
+          删除{{ checkedIds.length ? '(' + checkedIds.length + ')' : '' }}
+        </el-button>
+      </div>
+    </div>
+
+    <div class="filter-bar" data-guide="bank-filter">
+      <el-select :persistent="false" v-model="filterType" size="small" clearable placeholder="题型" style="width:108px">
+        <el-option v-for="t in types" :key="t" :label="t" :value="t" />
+      </el-select>
+      <el-select :persistent="false" v-model="filterDiff" size="small" clearable placeholder="难度" style="width:96px">
+        <el-option v-for="d in DIFFS" :key="d" :label="d" :value="d" />
+      </el-select>
+      <el-select :persistent="false" v-model="filterMastery" size="small" clearable placeholder="掌握度" style="width:104px">
+        <el-option v-for="m in MASTERY" :key="m" :label="m" :value="m" />
+        <el-option label="未标记" value="未标记" />
+      </el-select>
+      <el-select :persistent="false" v-model="filterSubject" size="small" clearable filterable placeholder="学科" style="width:118px">
+        <el-option v-for="s in subjectOptions" :key="s" :label="s" :value="s" />
+      </el-select>
+      <el-select :persistent="false" v-model="filterGrade" size="small" clearable filterable placeholder="年级" style="width:104px">
+        <el-option v-for="g in gradeOptions" :key="g" :label="g" :value="g" />
+      </el-select>
+      <el-select :persistent="false" v-model="filterKnowledge" size="small" clearable filterable placeholder="知识点" style="width:130px">
+        <el-option v-for="k in knowledgeOptions" :key="k" :label="k" :value="k" />
+      </el-select>
+      <el-select :persistent="false" v-model="filterTag" size="small" clearable filterable placeholder="标签" style="width:110px">
+        <el-option v-for="t in tagOptions" :key="t" :label="t" :value="t" />
+      </el-select>
+      <el-input v-model="filterSource" size="small" clearable placeholder="来源 / 年份" style="width:130px" />
+      <el-checkbox v-model="onlyWithFigure" size="small">只看带图</el-checkbox>
+      <el-checkbox v-model="onlyWithAnswer" size="small">只看有答案</el-checkbox>
+      <el-checkbox v-model="onlyFavorite" size="small">只看收藏</el-checkbox>
+      <div class="filter-chips">
+        <span class="filter-chip" v-for="c in activeChips" :key="c.key" @click="clearChip(c.key)">
+          {{ c.label }} <el-icon><Close /></el-icon>
+        </span>
+        <el-button v-if="activeChips.length" size="small" text type="primary" @click="clearFilters">清空筛选</el-button>
+      </div>
+    </div>
+
+    <div class="bulk-bar" v-if="checkedIds.length">
+      <span style="font-size:12.5px;font-weight:600">已选 {{ checkedIds.length }} 道</span>
+      <el-select :persistent="false" v-model="bulkPatch.folderId" size="small" clearable placeholder="移动到题库" style="width:140px">
+        <el-option v-for="f in store.folders" :key="f.id" :label="f.name" :value="f.id" />
+      </el-select>
+      <el-select :persistent="false" v-model="bulkPatch.type" size="small" clearable placeholder="改题型" style="width:110px">
+        <el-option v-for="t in types" :key="t" :label="t" :value="t" />
+      </el-select>
+      <el-select :persistent="false" v-model="bulkPatch.difficulty" size="small" clearable placeholder="改难度" style="width:100px">
+        <el-option v-for="d in DIFFS" :key="d" :label="d" :value="d" />
+      </el-select>
+      <el-input v-model="bulkPatch.addTags" size="small" clearable placeholder="加标签（逗号分隔）" style="width:170px" />
+      <el-button size="small" type="primary" :loading="bulkSaving" @click="applyBulk">应用修改</el-button>
+      <el-button size="small" text @click="checkedIds = []">取消选择</el-button>
+    </div>
+
+    <div v-if="!filtered.length" class="empty">
+      <el-icon><Collection /></el-icon>
+      <div class="empty-title">{{ hasFilter ? '没有符合条件的题目' : '题库还是空的' }}</div>
+      <div class="empty-desc" style="margin-bottom:14px">
+        {{ hasFilter ? '换个关键词，或点上方「清空筛选」' : '拍张照片或导入整份试卷，题目会自动进来' }}
+      </div>
+      <el-button v-if="!hasFilter" size="small" type="primary" @click="store.view = 'record'">去录题</el-button>
+    </div>
+
+    <div v-else>
+      <div style="display:flex;align-items:center;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border)">
+        <el-checkbox :model-value="allPageChecked" :indeterminate="somePageChecked" @change="togglePageCheck">
+          本页全选
+        </el-checkbox>
+        <span class="muted">按 {{ currentSortLabel }} 排序</span>
+      </div>
+
+      <div class="q-row" v-for="(q, i) in pageList" :key="q.id" :id="'q-' + q.id">
+        <div style="flex:0 0 22px;padding-top:2px">
+          <el-checkbox :model-value="checkedIds.includes(q.id)" @change="(v) => toggleCheck(q.id, v)" />
+        </div>
+        <div class="idx">{{ (page - 1) * pageSize + i + 1 }}</div>
+        <div class="body">
+          <div style="font-size:13.5px;line-height:1.78">
+            <span class="fav-star" :class="{ on: q.favorite }" :title="q.favorite ? '取消收藏' : '收藏'"
+                  @click="toggleFavorite(q, $event)">★</span>
+            <span v-if="q.no" class="q-no-tag">{{ q.no }}.</span><span v-html="hlStem(q)"></span>
+          </div>
+          <div class="q-options" v-if="q.options && q.options.length" style="margin-top:6px">
+            <div class="q-option" v-for="o in q.options" :key="o.key" style="font-size:12.5px">
+              <span class="k">{{ o.key }}</span><span v-html="hlRich(o.text)"></span>
+            </div>
+          </div>
+          <div class="q-figs" v-if="pendingFigures(q).length">
+            <figure v-for="(f, fi) in pendingFigures(q)" :key="f.id || fi">
+              <el-image v-if="figSrc(f)" :src="figSrc(f)" :preview-src-list="figureSrcs(q)" :initial-index="fi" fit="contain" />
+              <div v-else class="q-fig-none">图形待框选</div>
+              <figcaption>{{ f.label || ('图' + (fi + 1)) }}</figcaption>
+            </figure>
+          </div>
+          <div class="q-meta">
+            <el-tag size="small" :type="typeTag(q.type)">{{ q.type }}</el-tag>
+            <el-tag size="small" effect="plain" :type="diffTag(q.difficulty)">{{ q.difficulty }}</el-tag>
+            <el-tag size="small" type="info" effect="plain" v-if="q.subject">{{ q.subject }}</el-tag>
+            <el-tag size="small" type="info" effect="plain" v-if="q.grade">{{ q.grade }}</el-tag>
+            <el-tag size="small" effect="plain" v-for="k in q.knowledge" :key="'k' + k">{{ k }}</el-tag>
+            <el-tag size="small" type="success" effect="plain" v-for="t in (q.tags || []).slice(0, 4)" :key="'t' + t">#{{ t }}</el-tag>
+            <span class="muted" v-if="q.year">{{ q.year }}</span>
+            <span class="muted" v-if="q.region">{{ q.region }}</span>
+            <span class="muted">{{ fmtDate(q.createdAt) }}</span>
+            <span class="muted" v-if="q.answer">· 已有答案</span>
+            <span class="muted" v-if="hitCount(q)">· 命中 {{ hitCount(q) }} 处</span>
+            <el-tag size="small" effect="plain" :type="q.mastery === '掌握' ? 'success' : (q.mastery === '模糊' ? 'warning' : 'danger')"
+                    :class="{ 'mastery-tag': true, 'on': !!q.mastery }"
+                    :title="q.mastery ? '掌握度：' + q.mastery + '（点击切换）' : '点击标记掌握度'"
+                    @click.stop="cycleMastery(q, $event)">{{ q.mastery || '未掌握' }}</el-tag>
+            <span class="muted" v-if="q.viewCount">· 看过 {{ q.viewCount }} 次</span>
+          </div>
+          <div class="q-answer" v-if="q.answer" style="margin-top:8px" v-html="'答案：' + hlAnswer(q)"></div>
+          <div class="q-analysis" v-if="q.analysis" style="margin-top:6px" v-html="hlRich(brief(q.analysis, 160))"></div>
+        </div>
+        <div class="acts">
+          <el-button size="small" text @click="openEdit(q)">编辑</el-button>
+          <el-button size="small" text type="primary" :loading="q._solving" @click="aiSolve(q)">补答案</el-button>
+          <el-dropdown trigger="click">
+            <el-button size="small" text>更多<el-icon style="margin-left:2px"><ArrowDown /></el-icon></el-button>
+            <template #dropdown>
+              <el-dropdown-menu>
+                <el-dropdown-item @click="openMove(q)">移动到题库</el-dropdown-item>
+                <el-dropdown-item @click="openSimilar(q)">AI 相似题</el-dropdown-item>
+              </el-dropdown-menu>
+            </template>
+          </el-dropdown>
+          <el-button size="small" text type="danger" @click="removeOne(q)">删除</el-button>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:center;padding:14px">
+        <el-pagination background layout="prev, pager, next, total" :total="filtered.length"
+                       :page-size="pageSize" :current-page="page" @current-change="(p) => page = p" />
+      </div>
+    </div>
+  </div>
+
+  <q-edit v-model:visible="editVisible" :question="draft" :folders="store.folders"
+          :knowledge-options="knowledgeOptions" :tag-options="tagOptions" :gallery="store.gallery || []"
+          :title="draft && draft._isNew ? '新增题目' : '编辑题目'"
+          :saving="editSaving" @submit="applyEdit" />
+
+  <el-dialog v-model="folderDlg.visible" :title="folderDlg.mode === 'edit' ? '编辑题库' : '新建题库'" width="420px" append-to-body>
+    <div style="display:flex;flex-direction:column;gap:10px">
+      <label class="qe-field"><span>名称</span>
+        <el-input v-model="folderDlg.name" placeholder="如 八年级物理 上册" />
+      </label>
+      <label class="qe-field"><span>上级题库</span>
+        <el-select :persistent="false" v-model="folderDlg.parentId" clearable placeholder="放在最上层" style="width:100%">
+          <el-option v-for="f in parentOptions" :key="f.id" :label="f.name" :value="f.id" />
+        </el-select>
+      </label>
+      <label class="qe-field"><span>标签</span>
+        <el-input v-model="folderDlg.tags" placeholder="逗号分隔，如 统编,期中" />
+      </label>
+    </div>
+    <template #footer>
+      <el-button @click="folderDlg.visible = false">取消</el-button>
+      <el-button type="primary" @click="saveFolderDlg">保存</el-button>
+    </template>
+  </el-dialog>
+
+  <el-dialog :model-value="!!moving" title="移动到题库" width="400px" @update:model-value="(v) => { if (!v) moving = null; }">
+    <div class="muted" style="margin-bottom:10px">{{ moving ? brief(moving.stem, 60) : '' }}</div>
+    <el-select :persistent="false" v-model="moveTarget" style="width:100%" placeholder="选择题库">
+      <el-option v-for="f in store.folders" :key="f.id" :label="f.name" :value="f.id" />
+    </el-select>
+    <template #footer>
+      <el-button @click="moving = null">取消</el-button>
+      <el-button type="primary" :disabled="!moveTarget" @click="doMove">移动</el-button>
+    </template>
+  </el-dialog>
+
+  <el-dialog v-model="similar.visible" title="AI 相似题" width="680px" top="6vh">
+    <div class="muted" style="margin-bottom:10px">按原题考点生成，保存前可以取消不要的</div>
+    <div v-if="similar.source" style="background:var(--bg);border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12.5px;line-height:1.7">
+      <b>原题：</b><span v-html="renderStem(similar.source)"></span>
+    </div>
+    <div v-if="similar.loading" class="empty" style="padding:40px 10px">正在生成变式题…</div>
+    <div v-else style="max-height:420px;overflow:auto">
+      <div v-for="(q, i) in similar.list" :key="q.id" style="border-bottom:1px solid var(--border);padding:10px 2px">
+        <div style="display:flex;gap:8px">
+          <el-checkbox v-model="q._checked" />
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;line-height:1.75"><span v-html="renderStem(q)"></span></div>
+            <div class="q-option" v-for="o in q.options" :key="o.key" style="font-size:12.5px">
+              <span class="k">{{ o.key }}</span><span v-html="rich(o.text)"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-if="!similar.list.length" class="empty" style="padding:30px 10px">还没有生成结果</div>
+    </div>
+    <template #footer>
+      <el-button @click="similar.visible = false">取消</el-button>
+      <el-button type="primary" :disabled="similar.loading || !similar.list.length" @click="saveSimilar">
+        保存勾选的 {{ similar.list.filter((x) => x._checked).length }} 道
+      </el-button>
+    </template>
+  </el-dialog>
+
+  <!-- 组卷设置：生成试卷前先定好卷首、分区、分值 -->
+  <el-dialog v-model="paper.visible" title="组卷设置" width="560px" top="6vh">
+    <el-form label-width="96px" class="form-narrow" size="small">
+      <el-form-item label="试卷标题">
+        <el-input v-model="paper.title" placeholder="例如：2026-2027学年第一学期期末考试" />
+      </el-form-item>
+      <el-form-item label="学校名称">
+        <el-input v-model="paper.school" placeholder="留空则不显示" />
+      </el-form-item>
+      <el-form-item label="考试说明">
+        <el-input v-model="paper.examInfo" placeholder="例如：时间 90 分钟　满分 100 分" />
+      </el-form-item>
+      <el-form-item label="考生信息">
+        <el-switch v-model="paper.showStudentInfo" active-text="显示班级/姓名/学号/得分栏" />
+      </el-form-item>
+      <el-form-item label="注意事项">
+        <el-switch v-model="paper.showNotice" active-text="显示" />
+      </el-form-item>
+      <el-form-item v-if="paper.showNotice" label="　">
+        <el-input v-model="paper.noticeText" type="textarea" :rows="3"
+                  placeholder="例如：1．选择题须用 2B 铅笔填涂答题卡；2．解答题须用黑色签字笔写在答题卡上。"></el-input>
+      </el-form-item>
+      <el-form-item label="题型分区">
+        <el-switch v-model="paper.sectioned" active-text="按题型分大题（一、选择题 二、填空题 …）" />
+      </el-form-item>
+      <el-form-item v-if="paper.sectioned" label="每题分值">
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px 14px;width:100%">
+          <div v-for="g in paperScoreFields" :key="g.key" style="display:flex;align-items:center;gap:8px">
+            <span style="font-size:12.5px;white-space:nowrap">{{ g.label }}</span>
+            <el-input-number v-model="paper.scores[g.key]" :min="0" :max="50" size="small" controls-position="right" style="width:96px" />
+          </div>
+        </div>
+      </el-form-item>
+      <el-form-item label="选择题排版">
+        <el-switch v-model="paper.twoColChoice" active-text="选择题双栏排版" />
+      </el-form-item>
+      <el-form-item label="解答题留白">
+        <el-slider v-model="paper.answerLines" :min="0" :max="12" size="small" show-input />
+        <div class="muted" style="margin-top:2px;font-size:12px;line-height:1.6">
+          解答题下面留几行作答横线（选择题和填空题不留，直接答在题旁）。
+        </div>
+      </el-form-item>
+      <el-form-item label="附带答案">
+        <el-switch v-model="paper.withAnswer" active-text="卷末附参考答案与解析" />
+      </el-form-item>
+    </el-form>
+    <div class="muted" style="font-size:12.5px;line-height:1.7">
+      已勾选 {{ checkedIds.length }} 道题。生成后进入「讲义排版」页，可以先看效果再打印或另存。
+    </div>
+    <template #footer>
+      <el-button @click="paper.visible = false">取消</el-button>
+      <el-button type="primary" @click="buildPaper">生成试卷</el-button>
+    </template>
+  </el-dialog>
+</div>

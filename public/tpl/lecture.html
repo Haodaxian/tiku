@@ -1,0 +1,256 @@
+<div style="display:flex;flex-direction:column;height:calc(100vh - 96px)">
+  <div class="lec-toolbar">
+    <el-input v-model="lecture.title" placeholder="讲义标题" class="lec-title" />
+    <el-select :persistent="false" v-model="lecture.subject" placeholder="学科" clearable style="width:104px">
+      <el-option v-for="s in subjects" :key="s" :label="s" :value="s" />
+    </el-select>
+    <el-select :persistent="false" v-model="lecture.grade" placeholder="年级" clearable style="width:112px">
+      <el-option v-for="g in grades" :key="g" :label="g" :value="g" />
+    </el-select>
+    <span class="lec-saved" v-if="lecture.id">已保存 · {{ fmtDate(lecture.savedAt) }}</span>
+    <div class="lec-actions">
+      <el-button size="small" @click="newLecture">新建</el-button>
+      <el-button size="small" data-guide="lecture-save" @click="save" :loading="saving">保存</el-button>
+      <el-tooltip placement="bottom-end" content="打印预览里若看到网址和日期，把「页眉和页脚」取消勾选即可">
+        <el-button size="small" type="primary" data-guide="lecture-print" @click="print">
+          <el-icon style="margin-right:5px"><Printer /></el-icon>打印 / 导出 PDF
+        </el-button>
+      </el-tooltip>
+    </div>
+  </div>
+
+  <div class="lecture-layout" style="flex:1;min-height:0">
+    <!-- 左：结构 -->
+    <div class="panel" data-guide="lecture-tree" style="height:100%;display:flex;flex-direction:column;overflow:hidden">
+      <div class="panel-head" style="padding:11px 14px">
+        内容结构
+        <div class="right"><el-button size="small" text type="primary" @click="addSection">+ 章节</el-button></div>
+      </div>
+      <div style="flex:1;overflow:auto;padding:10px">
+        <div v-for="(sec, si) in lecture.sections" :key="sec.id" class="section-item" :class="{ active: activeSection === si }">
+          <div class="head" @click="selectSection(si)">
+            <el-icon style="cursor:pointer" @click.stop="moveSection(si, -1)" v-if="si > 0"><Top /></el-icon>
+            <div class="t">{{ sec.heading || '未命名章节' }}</div>
+            <el-icon style="opacity:.45;cursor:pointer" @click.stop="removeSection(si)"><Delete /></el-icon>
+          </div>
+          <div class="blocks" @click="selectSection(si)">{{ sec.blocks.length }} 个内容块</div>
+
+          <div v-if="activeSection === si" style="margin-top:8px">
+            <div v-for="(b, bi) in sec.blocks" :key="b.id"
+                 style="display:flex;align-items:center;gap:4px;padding:3px 4px;border-radius:5px;font-size:12px;cursor:pointer"
+                 :style="activeBlock === b.id ? 'background:var(--brand-soft);color:var(--brand)' : ''"
+                 @click.stop="selectBlock(si, bi)">
+              <span style="flex:0 0 34px;color:var(--text-mute);font-size:10.5px">{{ blockLabel(b) }}</span>
+              <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ blockBrief(b) }}</span>
+              <el-icon style="opacity:.4" @click.stop="moveBlock(si, bi, -1)"><ArrowUp /></el-icon>
+              <el-icon style="opacity:.4" @click.stop="moveBlock(si, bi, 1)"><ArrowDown /></el-icon>
+              <el-icon style="opacity:.4" @click.stop="removeBlock(si, bi)"><Close /></el-icon>
+            </div>
+            <div style="display:flex;gap:4px;margin-top:6px;flex-wrap:wrap">
+              <el-button size="small" text type="primary" @click.stop="addTextBlock(si)">+ 正文</el-button>
+              <el-button size="small" text type="primary" @click.stop="addAnswerBlock(si)">+ 作答区</el-button>
+              <el-button size="small" text type="primary" @click.stop="addFormulaBlock(si)">+ 公式</el-button>
+              <el-button size="small" text type="primary" @click.stop="addExampleBlock(si)">+ 例题</el-button>
+              <el-button size="small" text type="primary" @click.stop="addTianzigeBlock(si)">+ 作文格</el-button>
+              <el-button size="small" text type="primary" @click.stop="addPageBreak(si)">+ 分页</el-button>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="!lecture.sections.length" class="empty" style="padding:26px 12px">
+          <el-icon><DocumentAdd /></el-icon>
+          <div class="empty-title">还没有章节</div>
+          <div class="empty-desc">先导入内容，或手动加一个章节</div>
+        </div>
+      </div>
+
+      <div class="lec-stat-line">
+        <span><b>{{ lecture.sections.length }}</b> 个章节</span>
+        <i></i>
+        <span><b>{{ blockTotal }}</b> 个内容块</span>
+        <span class="lec-stat-hint" v-if="!blockTotal">先导入内容</span>
+      </div>
+
+      <div style="flex:0 0 auto;padding:10px 12px;border-top:1px solid var(--border);background:var(--panel);border-radius:0 0 var(--radius) var(--radius)">
+        <div style="display:flex;gap:6px">
+          <el-button size="small" style="flex:1" data-guide="lecture-import" @click="importVisible = true">
+            <el-icon style="margin-right:5px"><DocumentAdd /></el-icon>导入讲义内容
+          </el-button>
+          <el-button size="small" style="flex:1" @click="openPicker">
+            <el-icon style="margin-right:5px"><Collection /></el-icon>从题库选题
+          </el-button>
+        </div>
+      </div>
+    </div>
+
+    <!-- 中：画布 -->
+    <div class="paper-scroll" ref="paperWrap">
+      <doc-view :lecture="lecture" :config="previewConfig" :zoom="paperZoom" />
+      <div class="paper-tip">A4 实际排版效果 · 点「打印 / 导出 PDF」直接打印或存成 PDF</div>
+    </div>
+
+    <!-- 右：设置 -->
+    <div class="panel lecture-right pill-tabs" data-guide="lecture-layout" style="height:100%;overflow:auto">
+      <el-tabs v-model="rightTab" stretch>
+        <el-tab-pane label="排版" name="layout">
+          <div style="padding:2px 14px 16px">
+            <div class="mini-label" style="margin-top:2px">快速套用</div>
+            <div style="display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap">
+              <el-button size="small" @click="preset('lecture')">讲义</el-button>
+              <el-button size="small" @click="preset('exam')">试卷</el-button>
+              <el-button size="small" @click="preset('practice')">练习题</el-button>
+            </div>
+
+            <div class="prop-row" style="margin-bottom:12px">
+              <div class="mini-label" style="margin-top:0">分栏</div>
+              <el-radio-group v-model="config.columns" size="small">
+                <el-radio-button :label="1">单栏</el-radio-button>
+                <el-radio-button :label="2">双栏</el-radio-button>
+              </el-radio-group>
+            </div>
+            <div class="mini-label">正文字号：{{ config.fontSize }} px</div>
+            <el-slider v-model="config.fontSize" :min="11" :max="18" :step="1" size="small" />
+            <div class="mini-label">行距：{{ config.lineHeight }}</div>
+            <el-slider v-model="config.lineHeight" :min="1.4" :max="2.4" :step="0.1" size="small" />
+            <div class="mini-label">作答区样式</div>
+            <el-select :persistent="false" v-model="config.answerArea" size="small" style="width:100%">
+              <el-option label="横线" value="line" />
+              <el-option label="方格（作文格）" value="grid" />
+              <el-option label="不预留" value="none" />
+            </el-select>
+            <template v-if="config.answerArea === 'line'">
+              <div class="mini-label">默认作答行数：{{ config.answerLines }}</div>
+              <el-slider v-model="config.answerLines" :min="1" :max="12" size="small" />
+            </template>
+            <template v-if="config.answerArea === 'grid'">
+              <div class="mini-label">每行格数：{{ config.gridCols }}</div>
+              <el-slider v-model="config.gridCols" :min="10" :max="30" size="small" />
+            </template>
+
+            <el-divider style="margin:16px 0 12px" />
+            <div class="mini-label" style="margin-top:0">试卷信息</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:12.5px">考生信息栏</span>
+              <el-switch v-model="config.showStudentInfo" size="small" />
+            </div>
+            <el-input v-model="config.examInfo" size="small" placeholder="如：满分 100 分  考试时间 90 分钟" style="margin-bottom:10px" />
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:12.5px">显示学校 / 命题教师</span>
+              <el-switch v-model="config.showMeta" size="small" />
+            </div>
+            <div v-if="config.showMeta">
+              <el-input v-model="config.school" size="small" placeholder="学校名称（显示在标题上方）" style="margin-bottom:8px" />
+              <el-input v-model="config.teacher" size="small" placeholder="命题教师姓名" style="margin-bottom:8px" />
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:12.5px">显示日期</span>
+              <el-switch v-model="config.showDate" size="small" />
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <span style="font-size:12.5px">附参考答案页</span>
+              <el-switch v-model="config.showAnswer" size="small" />
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <span style="font-size:12.5px">结尾「试卷结束」</span>
+              <el-switch v-model="config.showFooter" size="small" />
+            </div>
+          </div>
+        </el-tab-pane>
+
+        <el-tab-pane label="内容块" name="block">
+          <div style="padding:4px 12px 14px" v-if="currentBlock">
+            <div class="mini-label">{{ blockLabel(currentBlock) }}</div>
+            <!-- 要点块的内容存在 content 里（每行一条），渲染时也按 content 拆行 -->
+            <el-input v-if="currentBlock.type === 'points'" v-model="currentBlock.content"
+                      type="textarea" :rows="8" placeholder="每行一条要点" />
+            <el-input v-else-if="currentBlock.type === 'formula'" v-model="currentBlock.content"
+                      type="textarea" :rows="3" placeholder="公式内容" />
+            <el-input v-else-if="currentBlock.type === 'answer'" v-model.number="currentBlock.lines" type="number" />
+            <div v-else-if="currentBlock.type === 'tianzige'">
+              <div class="mini-label">每行格数</div>
+              <el-slider v-model="currentBlock.cols" :min="6" :max="30" size="small" />
+              <div class="mini-label">行数</div>
+              <el-slider v-model="currentBlock.rows" :min="1" :max="20" size="small" />
+              <div class="mini-label">单格大小</div>
+              <el-slider v-model="currentBlock.cell" :min="16" :max="40" size="small" />
+            </div>
+            <el-input v-else-if="currentBlock.type !== 'question' && currentBlock.type !== 'pagebreak'"
+                      v-model="currentBlock.content" type="textarea" :rows="8" />
+            <div v-else-if="currentBlock.type === 'question'">
+              <div class="muted" style="margin-bottom:6px">题干</div>
+              <div style="font-size:12.5px;line-height:1.7;max-height:120px;overflow:auto;border:1px solid var(--border);border-radius:6px;padding:8px"
+                   v-html="renderStem(currentBlock)"></div>
+              <div class="mini-label">作答行数</div>
+              <el-slider v-model="currentBlock.lines" :min="0" :max="12" size="small" />
+              <template v-if="config.answerArea === 'grid'">
+                <div class="mini-label">作文格行数</div>
+                <el-slider v-model="currentBlock.gridRows" :min="1" :max="30" size="small" />
+              </template>
+            </div>
+            <div v-else class="muted">分页符没有可编辑内容</div>
+          </div>
+          <div v-else class="empty" style="padding:30px 12px">在左侧点一个内容块来编辑</div>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+  </div>
+
+  <!-- 导入对话框 -->
+  <el-dialog v-model="importVisible" title="导入讲义内容" width="680px" top="7vh">
+    <el-tabs v-model="importTab">
+      <el-tab-pane label="粘贴文字" name="paste">
+        <el-input v-model="importText" type="textarea" :rows="12" placeholder="把讲义内容粘贴到这里，段落之间空一行" />
+      </el-tab-pane>
+      <el-tab-pane label="上传文件" name="file">
+        <div style="padding:10px 0">
+          <el-button @click="fileInput && fileInput.click()">选择 Word / 文本文件</el-button>
+          <input ref="fileInput" type="file" accept=".docx,.txt,.md,.text" style="display:none" @change="onFile" />
+          <div class="muted" style="margin-top:10px;line-height:1.8">
+            支持 .docx 和 .txt 文件，图片和表格暂不导入，正文内容会完整保留。
+          </div>
+          <div v-if="importFileName" style="margin-top:12px">
+            <el-tag>{{ importFileName }}</el-tag>
+            <span class="muted" style="margin-left:8px">{{ importText.length }} 字</span>
+          </div>
+        </div>
+        <el-input v-model="importText" type="textarea" :rows="8" placeholder="识别到的文字会显示在这里，可以直接修改" />
+      </el-tab-pane>
+    </el-tabs>
+
+    <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+      <el-checkbox v-model="useAI">让 AI 帮忙分节整理</el-checkbox>
+      <span class="muted">会按内容自动分小标题并整理要点，需要几十秒</span>
+    </div>
+
+    <template #footer>
+      <el-button @click="importVisible = false">取消</el-button>
+      <el-button type="primary" :loading="importing" @click="doImport">导入</el-button>
+    </template>
+  </el-dialog>
+
+  <!-- 选题抽屉 -->
+  <el-drawer v-model="pickerVisible" title="从题库选题" size="600px">
+    <el-input v-model="pickKeyword" placeholder="搜题干或知识点" size="small" clearable style="margin-bottom:10px" />
+    <div style="max-height:calc(100vh - 200px);overflow:auto">
+      <div v-for="q in pickList" :key="q.id" style="padding:9px 4px;border-bottom:1px solid var(--border)">
+        <div style="display:flex;gap:8px">
+          <el-checkbox :model-value="pickedIds.includes(q.id)" @change="(v) => togglePick(q.id, v)" />
+          <div style="flex:1;min-width:0">
+            <div style="font-size:13px;line-height:1.7" v-html="rich(brief(q.stem, 100))"></div>
+            <div class="muted" style="margin-top:3px">{{ q.type }} · {{ q.difficulty }}<span v-if="q.knowledge && q.knowledge.length"> · {{ q.knowledge.join('、') }}</span></div>
+          </div>
+        </div>
+      </div>
+      <div v-if="!pickList.length" class="empty">没有符合条件的题目</div>
+    </div>
+    <template #footer>
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="muted">已选 {{ pickedIds.length }} 道</span>
+        <div>
+          <el-button @click="pickerVisible = false">取消</el-button>
+          <el-button type="primary" :disabled="!pickedIds.length" @click="insertPicked">插入到讲义</el-button>
+        </div>
+      </div>
+    </template>
+  </el-drawer>
+</div>

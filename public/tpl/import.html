@@ -1,0 +1,434 @@
+<div>
+  <el-tabs v-model="tab" data-guide="import-tabs" @tab-change="onTabChange">
+    <!-- ========== 整卷图片 ========== -->
+    <el-tab-pane label="整卷照片 / 图片" name="images">
+      <div class="record-layout">
+        <div>
+          <div class="drop-zone" :class="{ dragging: dragging }"
+               @click="pick" @dragover.prevent="dragging = true" @dragleave.prevent="dragging = false" @drop.prevent="onDrop">
+            <el-icon><Files /></el-icon>
+            <p>一次选完这份试卷的所有页</p>
+            <span>按顺序识别，题目会自动编号</span>
+          </div>
+          <input ref="fileInput" type="file" accept="image/*" multiple style="display:none" @change="onFiles" />
+
+          <div class="thumb-list" v-if="pages.length">
+            <div class="thumb" v-for="(p, i) in pages" :key="p.id">
+              <img :src="p.url" />
+              <div class="del" @click.stop="pages.splice(i, 1)">×</div>
+            </div>
+          </div>
+
+          <div class="panel panel-pad mt-14">
+            <div class="mini-label" style="margin-top:0">学段学科（可选，识别更准）</div>
+            <div style="display:flex;gap:8px;margin-bottom:10px">
+              <el-select :persistent="false" v-model="hintGrade" size="small" clearable placeholder="年级" style="flex:1">
+                <el-option v-for="g in GRADES" :key="g" :label="g" :value="g" />
+              </el-select>
+              <el-select :persistent="false" v-model="hintSubject" size="small" clearable filterable placeholder="学科" style="flex:1">
+                <el-option v-for="s in SUBJECTS" :key="s" :label="s" :value="s" />
+              </el-select>
+            </div>
+            <div class="mini-label">存到题库</div>
+            <el-select :persistent="false" v-model="folderId" size="small" style="width:100%" data-guide="import-folder" placeholder="选择题库">
+              <el-option v-for="f in folderOptions" :key="f.id" :label="f.label" :value="f.id" />
+            </el-select>
+            <el-button type="primary" class="w-full mt-14" data-guide="import-go" :loading="busy" :disabled="!pages.length || !store.settings.hasKey" @click="recognizePages">
+              {{ busy ? '识别中 ' + doneCount + ' / ' + pages.length + ' · ' + elapsed + 's' : '开始识别整卷（' + pages.length + ' 页）' }}
+            </el-button>
+            <div class="muted" style="margin-top:10px;line-height:1.7">多页会并行识别，识别完再回来核对即可。</div>
+          </div>
+
+          <div class="side-tip">
+            <div class="st-head"><el-icon><Opportunity /></el-icon>整卷识别的注意事项</div>
+            <ul>
+              <li>按页顺序添加，题号会自动接着编</li>
+              <li>一页里题太多时，改用「PDF 框选切题」更准</li>
+              <li>识别结果默认全选，不想要的取消勾选即可</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="panel result-panel">
+          <div class="panel-head">
+            识别结果
+            <span class="sub" v-if="results.length">共 {{ results.length }} 道 · 已选 {{ selected.length }} 道</span>
+            <div class="right">
+              <el-button size="small" text @click="toggleAll">{{ allSelected ? '取消全选' : '全选' }}</el-button>
+              <el-button size="small" type="primary" :disabled="!selected.length" :loading="saving" @click="save">保存到题库</el-button>
+            </div>
+          </div>
+          <div v-if="!results.length" class="empty result-empty">
+            <el-icon><Files /></el-icon>
+            <div class="empty-title">整卷识别结果会出现在这里</div>
+            <div class="empty-desc" style="margin-bottom:16px">一页一页按顺序识别，题目自动编号，核对后一起入库</div>
+            <div class="empty-steps">
+              <span><b>1</b> 选整卷图片</span>
+              <i></i>
+              <span><b>2</b> 开始识别</span>
+              <i></i>
+              <span><b>3</b> 全选保存</span>
+            </div>
+          </div>
+          <div v-else style="padding:12px 16px">
+            <div class="q-card" v-for="(q, i) in results" :key="q.id">
+              <div class="q-card-head">
+                <el-checkbox v-model="q._checked" />
+                <span class="no">{{ i + 1 }}</span>
+                <el-tag size="small" :type="typeTag(q.type)">{{ q.type }}</el-tag>
+                <span class="muted">{{ brief(q.stem, 40) }}</span>
+                <div style="margin-left:auto;display:flex;gap:2px">
+                  <el-button size="small" text @click="openEdit(q)">编辑</el-button>
+                  <el-button size="small" text type="danger" @click="results.splice(i, 1)">删除</el-button>
+                </div>
+              </div>
+              <div class="q-card-body">
+                <div class="q-stem">
+                  <span class="q-no-tag" v-if="q.no">{{ q.no }}.</span><span v-html="renderStem(q)"></span>
+                </div>
+                <div class="q-options" v-if="q.options && q.options.length">
+                  <div class="q-option" v-for="o in q.options" :key="o.key"><span class="k">{{ o.key }}</span><span v-html="rich(o.text)"></span></div>
+                </div>
+                <div class="q-figs" v-if="pendingFigures(q).length">
+                  <figure v-for="(f, fi) in pendingFigures(q)" :key="f.id || fi">
+                    <el-image v-if="figSrc(f)" :src="figSrc(f)" :preview-src-list="figureSrcs(q)" :initial-index="fi" fit="contain" />
+                    <div v-else class="q-fig-none">图形待框选</div>
+                    <figcaption>{{ f.label || ('图' + (fi + 1)) }}</figcaption>
+                  </figure>
+                </div>
+                <div class="q-answer" v-if="q.answer">答案：<span v-html="renderAnswer(q)"></span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-tab-pane>
+
+    <!-- ========== PDF ========== -->
+    <el-tab-pane label="PDF 框选切题" name="pdf">
+      <div v-if="!pdfDoc" class="upload-guide">
+        <div class="upload-spot">
+          <div class="spot-icon"><el-icon><Document /></el-icon></div>
+          <h3>选择一份 PDF 教辅或试卷</h3>
+          <p>打开后逐页框选需要的题，只识别框住的区域，又快又准。扫描件、拍照转的 PDF 都能用。</p>
+          <el-button type="primary" size="large" @click="pdfInput && pdfInput.click()">
+            <el-icon style="margin-right:6px"><FolderOpened /></el-icon>选择 PDF 文件
+          </el-button>
+          <input ref="pdfInput" type="file" accept="application/pdf,.pdf" style="display:none" @change="onPdf" />
+          <div class="muted" style="margin-top:14px" v-if="pdfLoading">正在打开…</div>
+        </div>
+
+        <div class="upload-tips">
+          <div class="tip-item">
+            <div class="ti"><el-icon><Crop /></el-icon></div>
+            <div>
+              <div class="tt">框选比整页更准</div>
+              <div class="td">一页上有好几道题时，拖一个框只识别这一道，避免题目串在一起。</div>
+            </div>
+          </div>
+          <div class="tip-item">
+            <div class="ti"><el-icon><Files /></el-icon></div>
+            <div>
+              <div class="tt">扫描件也能用</div>
+              <div class="td">手机拍照转成的 PDF、学校扫描的讲义都可以，歪一点、暗一点也没关系。</div>
+            </div>
+          </div>
+          <div class="tip-item">
+            <div class="ti"><el-icon><EditPen /></el-icon></div>
+            <div>
+              <div class="tt">识别后还能改</div>
+              <div class="td">结果先给你核对，题干、选项、答案都能手动修正，确认后再存进题库。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div v-else class="pdf-workspace">
+        <div>
+          <div class="panel panel-pad" style="padding:10px;margin-bottom:10px">
+            <div class="muted" style="margin-bottom:6px;word-break:break-all">{{ pdfName }}</div>
+            <el-button size="small" text type="primary" @click="resetPdf">换一份</el-button>
+          </div>
+          <div class="pdf-pages">
+            <div v-for="n in pageCount" :key="n" class="pdf-page-thumb" :class="{ active: n === pageNo }" @click="gotoPage(n)">
+              <img :src="thumbs[n]" v-if="thumbs[n]" />
+              <div v-else style="height:120px;display:flex;align-items:center;justify-content:center;color:#bbb;font-size:11px">…</div>
+              <div class="no">{{ n }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div>
+          <div class="panel panel-pad" style="padding:8px 12px;margin-bottom:10px;display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+            <el-button size="small" @click="gotoPage(pageNo - 1)" :disabled="pageNo <= 1">上一页</el-button>
+            <span style="font-size:13px">第 <b>{{ pageNo }}</b> / {{ pageCount }} 页</span>
+            <el-button size="small" @click="gotoPage(pageNo + 1)" :disabled="pageNo >= pageCount">下一页</el-button>
+            <el-divider direction="vertical" />
+            <span class="muted">拖动框选 → 裁切 → 存入右侧当前题卡</span>
+            <div style="display:flex;align-items:center;gap:2px">
+              <el-button size="small" @click="zoomBy(-0.1)" :disabled="zoom <= 0.4" title="缩小">－</el-button>
+              <span class="muted" style="min-width:42px;text-align:center">{{ Math.round(zoom * 100) }}%</span>
+              <el-button size="small" @click="zoomBy(0.1)" :disabled="zoom >= 2" title="放大">＋</el-button>
+              <el-button size="small" text @click="fitZoom" title="缩放到适合窗口">适应</el-button>
+            </div>
+            <div style="margin-left:auto;display:flex;gap:6px">
+              <el-button size="small" @click="clearSel" :disabled="!sel">清除选框</el-button>
+              <el-button size="small" @click="openCrop" :disabled="!sel" type="primary">裁切并添加</el-button>
+              <el-button size="small" :loading="busy" :disabled="!store.settings.hasKey" @click="recognizePage">识别整页</el-button>
+            </div>
+          </div>
+
+          <div class="canvas-wrap" ref="wrapRef">
+            <div style="position:relative;display:inline-block" v-show="!pdfLoading">
+              <canvas ref="mainCanvas"></canvas>
+              <div ref="selLayer" class="select-layer" @mousedown="startSel" @mousemove="moveSel" @mouseup="endSel" @mouseleave="endSel">
+                <div class="sel-box" v-if="sel" :style="{ left: sel.x + 'px', top: sel.y + 'px', width: sel.w + 'px', height: sel.h + 'px' }"></div>
+              </div>
+              <div v-if="ocrHint" class="canvas-ocr-mask">
+                <div class="canvas-ocr-box">
+                  <div class="ocr-spinner"></div>
+                  <div class="ocr-title">{{ ocrHint }}</div>
+                  <div class="ocr-sub">扫描件没有文字层，正在让模型认一遍，通常 3～5 秒</div>
+                </div>
+              </div>
+            </div>
+            <div v-if="pdfLoading" class="empty">正在渲染…</div>
+          </div>
+        </div>
+
+        <div class="panel card-panel">
+          <div class="panel-head">
+            题卡 · 章节
+            <span class="sub">{{ cards.length }} 个 · 共 {{ totalQuestions }} 道</span>
+            <div class="right">
+              <el-button size="small" @click="previewVisible = true" :disabled="!totalQuestions">预览</el-button>
+              <el-button size="small" type="primary" :disabled="!totalQuestions" :loading="saving" @click="saveAll">全部保存</el-button>
+            </div>
+          </div>
+
+          <div class="card-tabs">
+            <div class="card-tab" v-for="c in cards" :key="c.id" :class="{ active: c.id === activeCardId }" @click="selectCard(c.id)">
+              <span class="ct-name">{{ c.name }}</span>
+              <span class="ct-count">{{ c.questions.length }}</span>
+              <i class="ct-del" v-if="cards.length > 1" @click.stop="removeCard(c.id)" title="删除这个题卡">×</i>
+            </div>
+            <div class="card-tab card-tab-add" @click="addCard">+ 新题卡</div>
+          </div>
+
+          <div v-if="activeCard" class="card-body">
+            <div class="card-name-row">
+              <el-input v-model="activeCard.name" size="small" placeholder="题卡 / 章节名称，如：一、选择题" />
+              <el-button size="small" text @click="clearActiveCard" :disabled="!activeCard.questions.length">清空</el-button>
+            </div>
+            <div style="max-height:520px;overflow:auto">
+              <div v-if="!activeCard.questions.length" class="empty" style="padding:26px 10px">
+                当前题卡还没有题目：在左侧页面框选 → 裁切并添加
+              </div>
+              <div v-for="(q, i) in activeCard.questions" :key="q.id" class="card-q">
+                <div class="card-q-head">
+                  <span class="no">{{ i + 1 }}</span>
+                  <el-tag size="small" :type="typeTag(q.type)">{{ q.type }}</el-tag>
+                  <span class="muted">{{ brief(q.stem, 28) }}</span>
+                  <div class="acts">
+                    <el-button size="small" text @click="openEdit(q)">编辑</el-button>
+                    <el-button size="small" text @click="moveQuestion(i, -1)" :disabled="i === 0">↑</el-button>
+                    <el-button size="small" text @click="moveQuestion(i, 1)" :disabled="i === activeCard.questions.length - 1">↓</el-button>
+                    <el-button size="small" text type="danger" @click="activeCard.questions.splice(i, 1)">删</el-button>
+                  </div>
+                </div>
+                <div class="card-q-stem" v-html="renderStem(q)"></div>
+                <div class="q-figs" v-if="pendingFigures(q).length">
+                  <figure v-for="(f, fi) in pendingFigures(q)" :key="f.id || fi">
+                    <el-image v-if="figSrc(f)" :src="figSrc(f)" :preview-src-list="figureSrcs(q)" :preview-teleported="true" fit="contain" />
+                    <div v-else class="q-fig-none">待框选</div>
+                  </figure>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-tab-pane>
+    <!-- ========== 题卡 JSON ========== -->
+    <el-tab-pane label="题卡 JSON" name="json">
+      <div class="panel panel-pad" style="margin-bottom:14px">
+        <div class="mini-label" style="margin-top:0">用外面的智能体转成题卡（不花平台额度）</div>
+        <div class="skill-box">
+          <div class="skill-steps">
+            <div><b>1</b> 下载 Skill 包，解压后放进你所用智能体的 skills 目录</div>
+            <div><b>2</b> 把试卷 / 讲义的文字或截图发给它，说「按 tiku-json 整理成题卡」</div>
+            <div><b>3</b> 把它输出的 JSON 粘到下面，校验后导入</div>
+          </div>
+          <div class="skill-actions">
+            <el-button size="small" type="primary" plain @click="downloadSkill">下载 Skill 包</el-button>
+            <el-button size="small" text @click="copySkillPrompt">复制粘贴给智能体的话</el-button>
+          </div>
+          <div class="muted" style="margin-top:6px">
+            包内含 SKILL.md（规则）、SCHEMA.md（字段）、example.json（样例）、validate.mjs（自检脚本），任何支持技能目录的智能体都能装。
+          </div>
+        </div>
+      </div>
+
+      <div class="upload-guide">
+        <div class="panel panel-pad">
+          <div class="mini-label" style="margin-top:0">粘贴题卡 JSON 或选择文件</div>
+          <div style="display:flex;gap:8px;margin-bottom:10px">
+            <el-button size="small" @click="jsonInput && jsonInput.click()">选择题卡文件</el-button>
+            <input ref="jsonInput" type="file" accept=".json,application/json" style="display:none" @change="onJsonFile" />
+            <el-button size="small" text @click="jsonText = ''; jsonPreview = []; jsonFileName = ''">清空</el-button>
+            <span class="muted" style="margin-left:auto;align-self:center">{{ jsonFileName || '' }}</span>
+          </div>
+          <el-input v-model="jsonText" type="textarea" :rows="14" placeholder='支持 [{...}] 或 {"questions":[...]}；字段可用 stem/题干、type/题型、answer/答案、knowledge/知识点 等中英文写法' @input="parseJson" />
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <el-button size="small" @click="parseJson">校验并预览</el-button>
+            <span class="muted" v-if="jsonPreview.length">
+              识别出 {{ jsonStat.count }} 道 ·
+              {{ jsonStat.answer }} 道含答案 ·
+              {{ jsonStat.blank }} 道含填空横线 ·
+              {{ jsonStat.inline }} 道内嵌图片
+            </span>
+            <el-button size="small" type="primary" style="margin-left:auto" :disabled="!jsonPreview.length" @click="importJson">
+              导入到识别结果
+            </el-button>
+          </div>
+          <div class="muted" style="margin-top:6px" v-if="jsonStat.inline">
+            内嵌图片会在保存到题库时自动解码存到本机图片目录，题库文件不会变大。
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">预览<span class="sub">前 20 道</span></div>
+          <div style="max-height:520px;overflow:auto;padding:10px 14px">
+            <div v-if="!jsonPreview.length" class="empty" style="padding:30px 10px">导入的题目会显示在这里</div>
+            <div v-for="(q, i) in jsonPreview.slice(0, 20)" :key="q.id" style="padding:8px 0;border-bottom:1px solid var(--border)">
+              <div style="display:flex;gap:6px;align-items:center;margin-bottom:3px">
+                <span style="font-weight:700;font-size:12px">{{ i + 1 }}</span>
+                <el-tag size="small" :type="typeTag(q.type)">{{ q.type }}</el-tag>
+                <span class="muted" v-if="q.no">第 {{ q.no }} 题</span>
+                <el-tag size="small" type="info" effect="plain" v-if="q.difficulty">{{ q.difficulty }}</el-tag>
+                <span class="muted" v-if="(q.knowledge || []).length">{{ q.knowledge.join('、') }}</span>
+              </div>
+              <div style="font-size:12.5px;line-height:1.7" v-html="renderStem(q)"></div>
+              <div class="muted" style="font-size:11.5px" v-if="q.answer">答案：<span v-html="renderAnswer(q)"></span></div>
+              <div class="muted" style="font-size:11.5px" v-if="(q.figures || []).length">
+                配图 {{ q.figures.length }} 张<template v-if="hasInlineFig(q)">（已内嵌，导入后自动落盘）</template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-tab-pane>
+
+    <!-- ========== PDF / MD 文档识题 ========== -->
+    <el-tab-pane label="PDF / MD 文档识题" name="doc">
+      <div class="upload-guide">
+        <div class="panel panel-pad">
+          <div class="mini-label" style="margin-top:0">先指定学段学科（可选，能明显提高准确率）</div>
+          <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+            <el-select :persistent="false" v-model="hintGrade" size="small" clearable placeholder="年级" style="width:130px">
+              <el-option v-for="g in GRADES" :key="g" :label="g" :value="g" />
+            </el-select>
+            <el-select :persistent="false" v-model="hintSubject" size="small" clearable filterable placeholder="学科" style="width:130px">
+              <el-option v-for="s in SUBJECTS" :key="s" :label="s" :value="s" />
+            </el-select>
+          </div>
+
+          <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
+            <el-button size="small" type="primary" plain @click="docInput && docInput.click()">
+              <el-icon style="margin-right:5px"><Document /></el-icon>选择 PDF / MD / Word
+            </el-button>
+            <input ref="docInput" type="file" accept=".pdf,.md,.markdown,.txt,.docx" style="display:none" @change="onDocFile" />
+            <span class="muted">{{ docName || '支持 .pdf .md .txt .docx' }}</span>
+            <span class="muted" v-if="docBusy" style="color:var(--brand)">处理中…</span>
+          </div>
+
+          <div class="proc-row">
+            <span class="proc-row-label">文本处理</span>
+            <el-button v-for="p in textProcs" :key="'dp' + p.key" size="small" text :title="p.hint" @click="docProc(p.key)">{{ p.label }}</el-button>
+          </div>
+          <el-input v-model="docText" type="textarea" :rows="16"
+                    placeholder="选择文件后这里会显示提取出的文字，可以直接删改，只留题目部分再点「拆成题目」" />
+
+          <div style="display:flex;align-items:center;gap:10px;margin-top:12px">
+            <span class="muted">{{ docText.length }} 字</span>
+            <el-button size="small" type="primary" style="margin-left:auto" :loading="docBusy"
+                       :disabled="!docText.trim() || !store.settings.hasKey" @click="parseDoc">拆成题目</el-button>
+          </div>
+          <div class="muted" style="margin-top:10px;line-height:1.75">
+            文字层直接读出来交给文本模型拆题，比逐页识图便宜很多；扫描件 PDF 没有文字层，请用「整卷照片 / 图片」。
+          </div>
+        </div>
+
+        <div class="upload-tips">
+          <div class="tip-item">
+            <div class="ti"><el-icon><Files /></el-icon></div>
+            <div>
+              <div class="tt">PDF 只读前面 30 页</div>
+              <div class="td">整本书一次拆不干净，按章节分成几份导入效果更好。</div>
+            </div>
+          </div>
+          <div class="tip-item">
+            <div class="ti"><el-icon><DocumentAdd /></el-icon></div>
+            <div>
+              <div class="tt">Markdown 也行</div>
+              <div class="td">从网页、Word 里整理出来的题目文本，直接粘到右侧文本框就能拆。</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </el-tab-pane>
+  </el-tabs>
+
+  <el-dialog v-model="previewVisible" title="题卡预览" width="820px" top="5vh" append-to-body>
+    <div class="card-preview">
+      <div v-for="c in cards" :key="'pv' + c.id" v-show="c.questions.length" class="card-preview-sec">
+        <div class="card-preview-title">{{ c.name }}</div>
+        <div v-for="(q, i) in c.questions" :key="'pvq' + q.id" class="card-preview-q">
+          <div class="q-stem">{{ i + 1 }}. <span v-html="renderStem(q)"></span></div>
+          <div class="q-options" v-if="q.options && q.options.length">
+            <div class="q-option" v-for="o in q.options" :key="o.key"><span class="k">{{ o.key }}</span><span v-html="rich(o.text)"></span></div>
+          </div>
+          <div class="q-answer" v-if="q.answer">答案：<span v-html="renderAnswer(q)"></span></div>
+        </div>
+      </div>
+    </div>
+  </el-dialog>
+
+  <el-dialog v-model="cropVisible" title="裁切图片" width="880px" :close-on-click-modal="false" destroy-on-close>
+    <div class="crop-tip">这块区域已有文字层时默认按「文字」进入，直接取 PDF 原文、当场入卡；如果只想把这块当成一张图（公式、手写、扫描图），切换到「图片」。点「取消」回到页面继续调整选框。</div>
+    <div class="crop-kind">
+      <span class="ck-label">识别类型</span>
+      <el-radio-group v-model="cropKind" size="small">
+        <el-radio-button label="text" :disabled="!cropHasText">文字</el-radio-button>
+        <el-radio-button label="image">图片</el-radio-button>
+      </el-radio-group>
+      <span class="muted" v-if="!cropHasText && !cropOcrBusy">这块没有文字层（扫描件），正在自动识别</span>
+    </div>
+    <div class="crop-panels">
+      <div class="crop-pane" :class="{ active: cropKind === 'text' }" @click="cropText ? cropKind = 'text' : null">
+        <div class="crop-pane-head">文字</div>
+        <div class="crop-pane-body crop-pane-body-text">
+          <el-input v-if="cropText" v-model="cropText" type="textarea" :rows="11" class="crop-textarea"
+                    placeholder="这里是从 PDF 文字层读出的内容，可直接修改；排版整理请入卡后在「编辑」里做" />
+          <div v-else class="crop-empty">
+            <div style="margin-bottom:8px">{{ cropOcrFail || '这块没有可识别的文字，确认后按图片存入' }}</div>
+            <el-button size="small" :loading="cropOcrBusy" @click="retryOcr">重新识别</el-button>
+          </div>
+        </div>
+      </div>
+      <div class="crop-pane" :class="{ active: cropKind === 'image' }" @click="cropKind = 'image'">
+        <div class="crop-pane-head">图片</div>
+        <div class="crop-pane-body"><img :src="cropImage" class="crop-img" /></div>
+      </div>
+    </div>
+    <div class="crop-hint" v-if="cropText">{{ cropText }}</div>
+    <template #footer>
+      <el-button @click="closeCrop">取消</el-button>
+      <el-button type="primary" :loading="cropBusy || cropOcrBusy" :disabled="cropOcrBusy" @click="confirmCrop">确认</el-button>
+    </template>
+  </el-dialog>
+
+  <q-edit v-model:visible="editVisible" :question="draft" :folders="store.folders"
+          :knowledge-options="knowledgeOptions" :tag-options="tagOptions" :gallery="store.gallery || []"
+          :saving="editSaving" @submit="applyEdit" />
+</div>

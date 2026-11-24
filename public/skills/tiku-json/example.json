@@ -1,0 +1,69 @@
+{
+  "questions": [
+    {
+      "no": "1",
+      "stem": "下列各组数中，能构成直角三角形的是（　）",
+      "type": "单选题",
+      "options": [
+        { "key": "A", "text": "2，3，4" },
+        { "key": "B", "text": "3，4，5" },
+        { "key": "C", "text": "5，6，8" },
+        { "key": "D", "text": "1，2，3" }
+      ],
+      "answer": "B",
+      "analysis": "3²+4²=9+16=25=5²，符合勾股定理。",
+      "knowledge": ["勾股定理", "直角三角形"],
+      "difficulty": "简单",
+      "subject": "初中数学",
+      "grade": "八年级",
+      "year": "2026",
+      "region": "",
+      "source": "2026·某中学期中",
+      "chapter": "第十七章 勾股定理",
+      "tags": ["必考"],
+      "figures": []
+    },
+    {
+      "no": "2",
+      "stem": "在 Rt△ABC 中，∠C=90°，AC=3，BC=4，则斜边 AB=____，两直角边面积和为____。",
+      "type": "填空题",
+      "options": [],
+      "answer": "5；6",
+      "analysis": "由勾股定理 AB=√(3²+4²)=5；面积和=3×4÷2×2=6。",
+      "knowledge": ["勾股定理", "三角形面积"],
+      "difficulty": "中等",
+      "subject": "初中数学",
+      "grade": "八年级",
+      "year": "",
+      "region": "",
+      "source": "",
+      "chapter": "第十七章 勾股定理",
+      "tags": [],
+      "figures": []
+    },
+    {
+      "no": "3",
+      "stem": "如图 [图1]，在正方形 ABCD 中，点 E 在 BC 上，则 △ABE 的面积为____。",
+      "type": "解答题",
+      "options": [],
+      "answer": "设 BE=x，则 △ABE 面积为 x(4-x)/2。",
+      "analysis": "AB=4，BE=x，AE 边上的高为 4-x，面积=4x/2=x(4-x)/2。",
+      "knowledge": ["正方形的性质", "三角形的面积", "二次函数的图象与性质"],
+      "difficulty": "较难",
+      "subject": "初中数学",
+      "grade": "九年级",
+      "year": "",
+      "region": "",
+      "source": "",
+      "chapter": "第二十九章 二次函数",
+      "tags": ["压轴"],
+      "figures": [
+        {
+          "label": "图1",
+          "desc": "正方形 ABCD，A 在左上、B 在右上、C 在右下、D 在左下，E 在边 BC 上。",
+          "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAEhQGAhKmMIQAAAABJRU5ErkJggg=="
+        }
+      ]
+    }
+  ]
+}

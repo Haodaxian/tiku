@@ -1,0 +1,61 @@
+{
+  "appId": "com.tiku.lecture",
+  "productName": "题库与讲义系统",
+  "copyright": "个人版",
+
+  "directories": {
+    "output": "dist-electron",
+    "buildResources": "build"
+  },
+
+  "files": [
+    "electron/**/*",
+    "server.js",
+    "lib/**/*",
+    "public/**/*",
+    "app.ico",
+    "package.json"
+  ],
+
+  "extraMetadata": {
+    "main": "electron/main.js"
+  },
+
+  "win": {
+    "icon": "app.ico",
+    "target": [
+      { "target": "nsis", "arch": ["x64"] },
+      { "target": "portable", "arch": ["x64"] }
+    ]
+  },
+
+  "mac": {
+    "icon": "app.ico",
+    "category": "public.app-category.education",
+    "identity": null,
+    "target": [
+      { "target": "zip", "arch": ["arm64", "x64"] }
+    ]
+  },
+
+  "nsis": {
+    "oneClick": false,
+    "perMachine": false,
+    "allowToChangeInstallationDirectory": true,
+    "createDesktopShortcut": true,
+    "createStartMenuShortcut": true,
+    "shortcutName": "题库与讲义系统",
+    "artifactName": "题库与讲义系统-安装版-${version}.exe",
+    "installerLanguages": ["zh_CN"],
+    "language": "2052",
+    "uninstallDisplayName": "题库与讲义系统 ${version}"
+  },
+
+  "portable": {
+    "artifactName": "题库与讲义系统-免安装版.exe"
+  },
+
+  "electronDownload": {
+    "mirror": "https://npmmirror.com/mirrors/electron/"
+  }
+}

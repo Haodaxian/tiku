@@ -1,0 +1,274 @@
+<el-drawer :model-value="visible" :title="title || '编辑题目'" size="760px" :close-on-click-modal="false"
+           @update:model-value="(v) => $emit('update:visible', v)" @open="reset">
+  <div v-if="draft" class="qe">
+    <div class="qe-toolbar">
+      <el-tag size="small" :type="typeTag(draft.type)">{{ draft.type || '未分类' }}</el-tag>
+      <el-tag size="small" effect="plain" :type="diffTag(draft.difficulty)">{{ draft.difficulty || '中等' }}</el-tag>
+      <el-tag size="small" effect="plain" v-for="k in (draft.knowledge || []).slice(0, 3)" :key="'k' + k">{{ k }}</el-tag>
+      <span class="qe-mono" v-if="draft.no">第 {{ draft.no }} 题</span>
+      <div class="qe-toolbar-right">
+        <el-button size="small" :loading="solving" @click="aiSolve">AI 补答案</el-button>
+        <el-button size="small" :loading="uploading" @click="pickFigure">添加图形</el-button>
+      </div>
+    </div>
+
+    <div class="qe-section">
+      <div class="qe-section-title">基础属性</div>
+      <div class="qe-grid qe-grid-4">
+        <label class="qe-field"><span>题号</span><el-input v-model="draft.no" size="small" placeholder="如 12" /></label>
+        <label class="qe-field"><span>题型</span>
+          <el-select v-model="draft.type" size="small">
+            <el-option v-for="t in types" :key="t" :label="t" :value="t" />
+          </el-select>
+        </label>
+        <label class="qe-field"><span>难度</span>
+          <el-slider v-model="diffLevel" :min="1" :max="5" :step="1" :show-tooltip="false"
+                     :marks="{ 1: '很简单', 3: '中等', 5: '很难' }" class="diff-slider" />
+          <span class="diff-level">{{ diffLabel }}</span>
+        </label>
+        <label class="qe-field"><span>所属题库</span>
+          <el-select v-model="draft.folderId" size="small">
+            <el-option v-for="f in folderOptions" :key="f.id" :label="f.label" :value="f.id" />
+          </el-select>
+        </label>
+        <label class="qe-field"><span>学科</span><el-input v-model="draft.subject" size="small" placeholder="初中数学" /></label>
+        <label class="qe-field"><span>年级</span><el-input v-model="draft.grade" size="small" placeholder="九年级" /></label>
+        <label class="qe-field"><span>年份</span><el-input v-model="draft.year" size="small" placeholder="2026" /></label>
+        <label class="qe-field"><span>地区</span><el-input v-model="draft.region" size="small" placeholder="河南郑州" /></label>
+        <label class="qe-field qe-span-2"><span>来源</span><el-input v-model="draft.source" size="small" placeholder="如 2026届九年级期中" /></label>
+        <label class="qe-field qe-span-2"><span>教材章节</span><el-input v-model="draft.chapter" size="small" placeholder="如 第十七章 欧姆定律" /></label>
+        <label class="qe-field"><span>掌握度</span>
+          <el-select v-model="draft.mastery" size="small" clearable placeholder="未标记">
+            <el-option v-for="m in MASTERY" :key="m" :label="m" :value="m" />
+          </el-select>
+        </label>
+        <label class="qe-field"><span>收藏</span>
+          <el-switch v-model="draft.favorite" :active-value="1" :inactive-value="0" />
+        </label>
+      </div>
+    </div>
+
+    <div class="qe-section">
+      <div class="qe-section-title">
+        题干
+        <span class="qe-hint">像 Word 一样直接编辑：加粗、上下标、插入图形，一次保存</span>
+      </div>
+      <div class="qe-editor">
+        <div class="qe-editor-bar">
+          <button type="button" title="加粗" @mousedown.prevent="fmt('bold')"><b>B</b></button>
+          <button type="button" title="斜体" @mousedown.prevent="fmt('italic')"><i>I</i></button>
+          <button type="button" title="下划线" @mousedown.prevent="fmt('underline')"><u>U</u></button>
+          <span class="qe-editor-sep"></span>
+          <button type="button" title="上标" @mousedown.prevent="fmt('superscript')">x²</button>
+          <button type="button" title="下标" @mousedown.prevent="fmt('subscript')">x₂</button>
+          <button type="button" title="加大字号" @mousedown.prevent="bumpFont(1)">A+</button>
+          <button type="button" title="减小字号" @mousedown.prevent="bumpFont(-1)">A-</button>
+          <span class="qe-editor-sep"></span>
+          <button type="button" title="插入图形" @mousedown.prevent="insertFigurePicker = !insertFigurePicker">
+            <el-icon><Picture /></el-icon> 图形
+          </button>
+          <button type="button" title="清除格式" @mousedown.prevent="fmt('removeFormat')">清除格式</button>
+          <el-popover v-model:visible="procMenu" placement="bottom-start" :width="320" trigger="click" popper-class="qe-proc-pop">
+            <template #reference>
+              <button type="button" title="文本处理器：选中处理选区，不选处理整段">文本处理 ▾</button>
+            </template>
+            <div class="qe-proc-list">
+              <div class="qe-proc-head">选中文字只处理选区，没选则处理整段</div>
+              <div class="qe-proc-item" v-for="p in textProcs" :key="p.key" @click="runProc(p.key)">
+                <b>{{ p.label }}</b><span>{{ p.hint }}</span>
+              </div>
+              <div class="qe-proc-all">
+                <el-button size="small" text @click="runProcAll('cleanup')">整段一键整理</el-button>
+                <el-button size="small" text @click="runProcAll('math')">整段公式转纯文本</el-button>
+              </div>
+            </div>
+          </el-popover>
+          <!-- 选中图时，这一行右侧换成宽度调节，不再单独占一行，避免选中图片就把内容顶下去 -->
+          <span class="qe-img-inline" v-if="imgSel">
+            <span class="lbl">图片</span>
+            <span class="val">{{ imgSelW }}px</span>
+            <button type="button" title="缩小" @mousedown.prevent="imgWidthBy(-80)">－</button>
+            <button type="button" title="放大" @mousedown.prevent="imgWidthBy(80)">＋</button>
+            <button type="button" title="占满宽度" @mousedown.prevent="imgWidthFit">占满</button>
+            <button type="button" title="完成，取消选中" @mousedown.prevent="clearImgSel">完成</button>
+          </span>
+          <span class="qe-editor-count" v-else>{{ stemLength }} 字</span>
+        </div>
+
+        <div class="qe-fig-picker" v-if="insertFigurePicker">
+          <div class="qe-fig-picker-tip" v-if="!figures.length">还没有图形，可先「框选」或「上传」一张</div>
+          <div class="qe-fig-picker-list">
+            <div class="qe-fig-pick" v-for="(f, i) in figures" :key="'pick' + i" @mousedown.prevent="insertFigureAt(f)">
+              <img :src="figSrc(f)" v-if="figSrc(f)" />
+              <div v-else class="qe-fig-none"><el-icon><Picture /></el-icon></div>
+              <span>{{ f.label || ('图' + (i + 1)) }}</span>
+            </div>
+          </div>
+          <div class="qe-fig-picker-acts">
+            <el-button size="small" @mousedown.prevent="openCropForInline">从原图框选</el-button>
+            <el-button size="small" :loading="uploading" @mousedown.prevent="pickFigure">上传图片</el-button>
+          </div>
+          <template v-if="galleryItems.length">
+            <div class="qe-fig-picker-tip" style="margin-top:8px">从图库选一张</div>
+            <div class="qe-fig-picker-list">
+              <div class="qe-fig-pick" v-for="g in galleryItems.slice(0, 30)" :key="'g' + g.id" @mousedown.prevent="pickFromGallery(g)">
+                <img :src="g.url" />
+                <span>{{ g.label || '图库' }}</span>
+              </div>
+            </div>
+          </template>
+        </div>
+
+        <div ref="editor" class="qe-editor-body" contenteditable="true" spellcheck="false"
+             data-placeholder="题干原文，可直接粘贴、加粗、上下标、插入图形…"
+             @input="onEditorInput" @paste="onEditorPaste" @focus="editorFocused = true"
+             @mousedown="onEditorMouseDown" @dragstart="onEditorDragStart"
+             @blur="editorFocused = false" @keyup="saveSelection" @mouseup="saveSelection"></div>
+      </div>
+      <div class="qe-editor-hint">支持从 Word / 网页直接粘贴；图片会一起带进来并自动转存。</div>
+    </div>
+
+    <div class="qe-section" v-if="needOptions">
+      <div class="qe-section-title">选项</div>
+      <div class="qe-opt" v-for="(o, i) in draft.options" :key="i">
+        <el-input v-model="o.key" size="small" style="width:56px" />
+        <div style="flex:1;min-width:0">
+          <el-input v-model="o.text" size="small" @focus="optFocus(o)">
+            <template #append>
+              <el-button size="small" title="下标：选中文字后点，或先点再输入" @mousedown.prevent="optScript(o, 'sub')">x₂</el-button>
+              <el-button size="small" title="上标：选中文字后点，或先点再输入" @mousedown.prevent="optScript(o, 'sup')">x²</el-button>
+            </template>
+          </el-input>
+          <div class="qe-opt-preview" v-if="o.text && /[_^]/.test(o.text)">
+            预览：<span v-html="TK.rich(o.text)"></span>
+          </div>
+        </div>
+        <el-button size="small" text type="danger" @click="draft.options.splice(i, 1)">删</el-button>
+      </div>
+      <el-button size="small" text type="primary" @click="addOption">+ 加选项</el-button>
+    </div>
+
+    <div class="qe-section">
+      <div class="qe-grid qe-grid-2">
+        <label class="qe-field"><span>答案</span>
+          <div class="qe-ans">
+            <div class="qe-ans-bar">
+              <button type="button" title="上标" @mousedown.prevent="ansScript('sup')">x²</button>
+              <button type="button" title="下标" @mousedown.prevent="ansScript('sub')">x₂</button>
+              <button type="button" title="加大字号" @mousedown.prevent="ansSize(1)">A+</button>
+              <button type="button" title="减小字号" @mousedown.prevent="ansSize(-1)">A-</button>
+              <span class="qe-editor-sep"></span>
+              <button type="button" title="多空时增加一个空" @mousedown.prevent="addAnswerBlank">+ 空</button>
+              <span class="qe-ans-count">{{ answerBlanks.length }} 空</span>
+            </div>
+            <div class="qe-ans-list">
+              <div class="qe-ans-row" v-for="(b, bi) in answerBlanks" :key="'ab' + bi">
+                <span class="qe-ans-no">{{ answerBlanks.length > 1 ? '（' + (bi + 1) + '）' : '' }}</span>
+                <el-input v-model="b.text" size="small" :placeholder="answerBlanks.length > 1 ? '第 ' + (bi + 1) + ' 空的答案' : '填空按空分行，一空一个框'"
+                          @focus="ansFocus(b)" @input="onAnswerInput">
+                  <template #append>
+                    <el-button size="small" v-if="answerBlanks.length > 1" title="删除这个空" @click="removeAnswerBlank(bi)">删</el-button>
+                  </template>
+                </el-input>
+              </div>
+            </div>
+            <div class="qe-ans-preview" v-if="answerPreview">
+              预览：<span v-html="answerPreview"></span>
+            </div>
+          </div>
+        </label>
+        <label class="qe-field"><span>知识点</span>
+          <el-select v-model="draft.knowledge" multiple filterable allow-create default-first-option size="small"
+                     placeholder="输入后回车新增">
+            <el-option v-for="k in knowledgeOptions" :key="k" :label="k" :value="k" />
+          </el-select>
+        </label>
+      </div>
+      <label class="qe-field"><span>标签</span>
+        <el-select v-model="draft.tags" multiple filterable allow-create default-first-option size="small"
+                   placeholder="如 易错 / 压轴 / 中考真题">
+          <el-option v-for="t in tagOptions" :key="t" :label="t" :value="t" />
+        </el-select>
+      </label>
+      <label class="qe-field"><span>解析</span>
+        <el-input v-model="draft.analysis" type="textarea" :rows="3" resize="vertical" />
+      </label>
+    </div>
+
+    <div class="qe-section">
+      <div class="qe-section-title">
+        图形库
+        <span class="qe-hint">框选/上传的图形都会进这里；点「插入」可放进题干光标处</span>
+      </div>
+      <div v-if="!figures.length" class="qe-fig-empty">
+        <el-icon><Picture /></el-icon>
+        <span>还没有图形。几何图、函数图像、电路图都可以框出来单独保存。</span>
+      </div>
+      <div class="qe-figs">
+        <div class="qe-fig" v-for="(f, i) in figures" :key="f.id || i">
+          <img :src="figSrc(f)" v-if="figSrc(f)" @click="preview = figSrc(f)" />
+          <div class="qe-fig-none" v-else><el-icon><Picture /></el-icon></div>
+          <div class="qe-fig-body">
+            <el-input v-model="f.label" size="small" placeholder="图1" style="width:72px" />
+            <el-input v-model="f.desc" size="small" placeholder="图形说明（可选）" />
+          </div>
+          <div class="qe-fig-acts">
+            <el-button size="small" text type="primary" @click="insertFigureAt(f)">插入</el-button>
+            <el-button size="small" text @click="startCrop(f)" :disabled="!cropSource">框选</el-button>
+            <el-button size="small" text @click="saveToGallery(f)" :disabled="!figSrc(f)" title="存到我的图库">收藏</el-button>
+            <el-button size="small" text type="danger" @click="removeFigure(i)">删</el-button>
+          </div>
+        </div>
+      </div>
+      <div class="qe-fig-tip" v-if="!cropSource">
+        当前题目没有原图可框选：可点上方「图形 → 上传图片」直接上传一张。
+      </div>
+    </div>
+
+    <div class="qe-section">
+      <div class="qe-section-title">预览<span class="qe-hint">和题库、试卷里的最终显示一致</span></div>
+      <div class="qe-preview">
+        <div class="q-stem" v-html="TK.renderStem(draft)"></div>
+        <div class="q-options" v-if="needOptions && (draft.options || []).length">
+          <div class="q-option" v-for="o in draft.options" :key="o.key"><span class="k">{{ o.key }}</span><span v-html="TK.rich(o.text)"></span></div>
+        </div>
+        <div class="q-answer" v-if="draft.answer">答案：<span v-html="TK.renderAnswer(draft)"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <template #footer>
+    <div class="qe-footer">
+      <span class="muted" v-if="dirty">有未保存的修改</span>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <el-button @click="$emit('update:visible', false)">取消</el-button>
+        <el-button type="primary" :loading="saving" @click="submit">保存</el-button>
+      </div>
+    </div>
+  </template>
+</el-drawer>
+
+<el-dialog v-model="cropVisible" title="从原图框选图形" width="880px" top="5vh" append-to-body :close-on-click-modal="false">
+  <div class="crop-hint">在原图上按住鼠标拖出一个框，只把图形本身框进来。</div>
+  <div class="crop-wrap" ref="cropWrap">
+    <div class="crop-canvas" ref="cropCanvas">
+      <div class="crop-img-wrap" style="position:relative;display:inline-block">
+        <img :src="cropSource" draggable="false" @mousedown="cropStart" @mousemove="cropMove" @mouseup="cropEnd" @mouseleave="cropEnd" />
+        <div class="sel-box" v-if="cropSel" :style="{ left: cropSel.x + 'px', top: cropSel.y + 'px', width: cropSel.w + 'px', height: cropSel.h + 'px' }"></div>
+      </div>
+    </div>
+  </div>
+  <template #footer>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span class="muted">{{ cropSel ? '框选 ' + Math.round(cropSel.w) + ' × ' + Math.round(cropSel.h) + ' px' : '还没有框选' }}</span>
+      <el-button size="small" @click="cropSel = null" :disabled="!cropSel">清除</el-button>
+      <div style="margin-left:auto;display:flex;gap:8px">
+        <el-button @click="cropVisible = false">取消</el-button>
+        <el-button type="primary" :loading="cropping" :disabled="!cropSel" @click="applyCrop">裁剪并保存</el-button>
+      </div>
+    </div>
+  </template>
+</el-dialog>
+
+<input ref="figInput" type="file" accept="image/*" style="display:none" @change="onFigureFile" />
+<el-image-viewer v-if="preview" :url-list="[preview]" @close="preview = ''" />

@@ -1,0 +1,101 @@
+<div>
+  <div class="hint-bar" v-if="!store.settings.hasKey">
+    <el-icon><WarningFilled /></el-icon>
+    <span>还没有配置大模型，录题和智能排版暂时不能用。到「设置」里填入阶跃星辰的 API Key 即可，其余功能不受影响。</span>
+    <el-button size="small" type="warning" plain style="margin-left:auto" @click="go('settings')">去设置</el-button>
+  </div>
+
+  <div class="grid-3" data-guide="dash-quick">
+    <div class="action-card" v-for="c in cards" :key="c.key" @click="go(c.key)">
+      <div class="icon-wrap"><el-icon><component :is="c.icon" /></el-icon></div>
+      <h3>{{ c.title }}</h3>
+      <p>{{ c.desc }}</p>
+      <el-button size="small" type="primary" plain>{{ c.action }}</el-button>
+    </div>
+  </div>
+
+  <div class="grid-4 mt-14" data-guide="dash-stat">
+    <div class="stat-card">
+      <div class="stat-label">题库总题量</div>
+      <div class="stat-value">{{ s.questionCount || 0 }}<small>道</small></div>
+      <div class="stat-foot">其中有答案 {{ s.withAnswer || 0 }} 道</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">讲义</div>
+      <div class="stat-value">{{ s.lectureCount || 0 }}<small>份</small></div>
+      <div class="stat-foot">排版后可导出 A4 打印</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月模型调用</div>
+      <div class="stat-value">{{ s.monthCalls || 0 }}<small>次</small></div>
+      <div class="stat-foot">平均响应 {{ s.avgSec ? s.avgSec + ' 秒' : '—' }}</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">本月预估费用</div>
+      <div class="stat-value">¥{{ (s.monthCost || 0).toFixed(2) }}</div>
+      <div class="stat-foot">按官方刊例价估算，实际以账单为准</div>
+    </div>
+  </div>
+
+  <div class="grid-2 mt-14">
+    <div class="panel" data-guide="dash-chart">
+      <div class="panel-head">
+        近 7 天录入
+        <span class="sub">共 {{ weekTotal }} 道</span>
+      </div>
+      <div class="panel-pad">
+        <div class="bars" v-if="weekTotal > 0">
+          <div class="bar-col" v-for="d in (s.last7 || [])" :key="d.label">
+            <div class="bar-value">{{ d.count }}</div>
+            <div class="bar" :class="{ zero: !d.count }" :style="{ height: barHeight(d.count) }"></div>
+            <div class="bar-label">{{ d.label }}</div>
+          </div>
+        </div>
+        <div class="bars-empty" v-else>
+          <el-icon><TrendCharts /></el-icon>
+          <div>这周还没有录入记录</div>
+          <el-button size="small" text type="primary" @click="go('record')">去录第一道题</el-button>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel" data-guide="dash-recent" style="display:flex;flex-direction:column">
+      <div class="panel-head">
+        最近录入
+        <div class="right"><el-button size="small" text type="primary" @click="go('bank')">去题库</el-button></div>
+      </div>
+      <div v-if="recent.length" style="flex:1">
+        <div class="q-row" v-for="q in recent" :key="q.id">
+          <div class="idx">{{ q.type }}</div>
+          <div class="body">
+            <div style="font-size:13px;line-height:1.7" v-html="rich(brief(q.stem, 78))"></div>
+            <div class="muted" style="margin-top:4px">
+              {{ fmtDate(q.createdAt) }} · {{ q.difficulty }}<span v-if="q.knowledge && q.knowledge.length"> · {{ q.knowledge.join('、') }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else class="empty" style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px">
+        <el-icon><DocumentAdd /></el-icon>
+        <div class="empty-title">题库还是空的</div>
+        <div class="empty-desc" style="margin-bottom:12px">拍一张题目照片，几秒钟就能入库</div>
+        <el-button size="small" type="primary" @click="go('record')">开始录题</el-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel mt-14">
+    <div class="panel-head">怎么用<span class="sub">三步上手</span></div>
+    <div class="panel-pad">
+      <div class="grid-3">
+        <div v-for="(st, i) in steps" :key="i" style="display:flex;gap:12px">
+          <div style="flex:0 0 26px;height:26px;border-radius:9px;background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px">{{ i + 1 }}</div>
+          <div>
+            <div style="font-weight:600;font-size:13.5px">{{ st.t }}</div>
+            <div class="muted" style="line-height:1.75;margin-top:4px">{{ st.d }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
