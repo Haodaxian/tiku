@@ -169,7 +169,8 @@ window.TK = (function () {
    * 不兑现的话，题图按原始像素铺开，一幅图就占掉半张卷子。
    */
   function applyFigWidth(html) {
-    return String(html || '').replace(/<img([^>]*?)>/gi, (m) => {
+    let bottom = 0;
+    const result = String(html || '').replace(/<img([^>]*?)>/gi, (m) => {
       let tag = m;
       if (!/class\s*=\s*["'][^"']*stem-fig/.test(tag)) {
         tag = tag.replace('<img', '<img class="stem-fig"');
@@ -181,8 +182,20 @@ window.TK = (function () {
           ? tag.replace(/\s*\/>\s*$/, ' style="max-width:' + px + 'px"/>')
           : tag.replace(/>\s*$/, ' style="max-width:' + px + 'px">');
       }
+      const freeX = (m.match(/data-x="(\d+(?:\.\d+)?)"/) || [])[1];
+      if (freeX !== undefined) {
+        const x = Math.min(95, Number(freeX));
+        const y = Math.min(10000, Number((m.match(/data-y="(\d+)"/) || [])[1]) || 0);
+        const h = Math.min(2000, Number((m.match(/data-h="(\d+)"/) || [])[1]) || 100);
+        bottom = Math.max(240, bottom, y + h + 12);
+        tag = tag.replace(/\sstyle\s*=\s*("[^"]*"|'[^']*')/gi, '');
+        const styledWidth = Number((m.match(/(?:^|[;"\s])width\s*:\s*(\d+(?:\.\d+)?)px/i) || [])[1]);
+        const displayWidth = Math.min(1200, styledWidth || Number(w) || 360);
+        tag = tag.replace(/>$/, ' style="position:absolute;left:' + x + '%;top:' + y + 'px;margin:0;display:block;width:' + displayWidth + 'px;height:auto;max-height:420px;box-sizing:border-box;border:1px solid transparent;max-width:' + (100-x) + '%">');
+      }
       return tag;
     });
+    return bottom ? '<div class="stem-free-layout" style="position:relative;display:flow-root;min-height:' + bottom + 'px">' + result + '</div>' : result;
   }
 
   function renderStem(q) {
@@ -190,9 +203,20 @@ window.TK = (function () {
     const map = figureMap(q);
     const html = typeof q === 'string' ? '' : String(q.stemHtml || '');
     const inline = (s) => {
+      // 题干里已经用 <img> 内嵌过的图先记下来：
+      // 若同一个 [图N] 占位也指向这张图，必须把占位直接删掉，
+      // 否则图会被渲染两遍（一份是 <img>，一份是占位替换出来的）。
+      const present = {};
+      s.replace(/<img[^>]*src\s*=\s*["']([^"']+)["'][^>]*>/gi, (m, src) => {
+        present[src] = 1;
+        return m;
+      });
       let out = s.replace(/\[(图\d+)\]/g, (m, name) => {
         const url = map[name];
-        if (!url) return m;
+        // 图上没有对应文件时占位没有意义，直接删掉，不要以「[图1]」的文字露出来
+        if (!url) return '';
+        if (present[url]) return '';
+        present[url] = 1;
         return '<img class="stem-fig" src="' + url + '" data-fig="1">';
       });
       return applyFigWidth(out).replace(/\n/g, '<br>');
@@ -209,7 +233,8 @@ window.TK = (function () {
     const head = String(q.stemHtml || '') + ' ' + String(q.stem || '');
     return figs.filter((f, i) => {
       const url = figSrc(f);
-      if (!url) return true;
+      // 只有 bbox、还没裁出图的占位条目：识别阶段记录用，界面上不该显示成「图1」
+      if (!url || f.libraryOnly) return false;
       if (head.indexOf(url) >= 0) return false;
       const label = f.label || ('图' + (i + 1));
       return head.indexOf('[' + label + ']') < 0;
@@ -253,6 +278,7 @@ window.TK = (function () {
     const html = String((q && q.stemHtml) || '');
     const figures = (q && Array.isArray(q.figures)) ? q.figures : [];
     const missing = figures
+      .filter((f) => !f.libraryOnly)
       .map((f) => figSrc(f))
       .filter((u) => u && html.indexOf(u) < 0);
     if (html) {

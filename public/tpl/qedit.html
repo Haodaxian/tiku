@@ -83,16 +83,7 @@
               </div>
             </div>
           </el-popover>
-          <!-- 选中图时，这一行右侧换成宽度调节，不再单独占一行，避免选中图片就把内容顶下去 -->
-          <span class="qe-img-inline" v-if="imgSel">
-            <span class="lbl">图片</span>
-            <span class="val">{{ imgSelW }}px</span>
-            <button type="button" title="缩小" @mousedown.prevent="imgWidthBy(-80)">－</button>
-            <button type="button" title="放大" @mousedown.prevent="imgWidthBy(80)">＋</button>
-            <button type="button" title="占满宽度" @mousedown.prevent="imgWidthFit">占满</button>
-            <button type="button" title="完成，取消选中" @mousedown.prevent="clearImgSel">完成</button>
-          </span>
-          <span class="qe-editor-count" v-else>{{ stemLength }} 字</span>
+          <span class="qe-editor-count">{{ stemLength }} 字</span>
         </div>
 
         <div class="qe-fig-picker" v-if="insertFigurePicker">
@@ -122,8 +113,20 @@
         <div ref="editor" class="qe-editor-body" contenteditable="true" spellcheck="false"
              data-placeholder="题干原文，可直接粘贴、加粗、上下标、插入图形…"
              @input="onEditorInput" @paste="onEditorPaste" @focus="editorFocused = true"
-             @mousedown="onEditorMouseDown" @dragstart="onEditorDragStart"
+             @pointerdown="onEditorMouseDown" @dragstart="onEditorDragStart"
              @blur="editorFocused = false" @keyup="saveSelection" @mouseup="saveSelection"></div>
+
+        <!-- 图片操作条放在编辑区外面：显示/隐藏都不会推动题干里的内容，
+             否则一点图，图就被顶下去一截，鼠标当场"抓空"，看起来就是拖不动 -->
+        <div class="qe-img-bar" v-if="imgSel">
+          <span class="lbl">图片宽度</span>
+          <input type="range" class="qe-img-range" :min="80" :max="800" step="10"
+                 :value="imgSelW" @input="imgWidthSet($event.target.value)" title="拖动滑块调整图片宽度" />
+          <span class="val">{{ imgSelW }} px</span>
+          <button type="button" @mousedown.prevent="imgWidthFit">占满</button>
+          <button type="button" @mousedown.prevent="clearImgSel">完成</button>
+          <span class="hint">按住图片拖到文字或空白处</span>
+        </div>
       </div>
       <div class="qe-editor-hint">支持从 Word / 网页直接粘贴；图片会一起带进来并自动转存。</div>
     </div>

@@ -173,6 +173,9 @@ window.QEditDrawer = {
       copy.knowledge = Array.isArray(copy.knowledge) ? copy.knowledge : [];
       copy.tags = Array.isArray(copy.tags) ? copy.tags : [];
       copy.figures = Array.isArray(copy.figures) ? copy.figures : [];
+      // 识别阶段留下的「只有 bbox、没有图」占位条目不该出现在图形库和预览里，
+      // 否则还没插图就先冒出一个「图1」
+      copy.figures = copy.figures.filter((f) => TK.figSrc(f));
       copy.folderId = copy.folderId || (props.folders[0] && props.folders[0].id) || '';
       copy.no = copy.no || '';
       copy.subject = copy.subject || '';
@@ -200,23 +203,34 @@ window.QEditDrawer = {
       nextTick(() => {
         if (editor.value) {
           editor.value.innerHTML = copy.stemHtml || (copy.stem ? TK.escapeHtml(copy.stem).replace(/\n/g, '<br>') : '');
+          // 已内嵌过图的题干里可能残留 [图1] 这类占位文字（历史数据/识别残留），
+          // 进编辑器先清掉，不能让它以文字形式出现在题干里。
+          const hasInlineImg = editor.value.querySelectorAll('img').length > 0;
+          if (hasInlineImg && /\[图\d+\]/.test(editor.value.innerHTML)) {
+            editor.value.innerHTML = editor.value.innerHTML.replace(/\[图\d+\]/g, '');
+            copy.stemHtml = editor.value.innerHTML;
+            copy.stem = (editor.value.innerText || '').trim();
+          }
           stemLength.value = (editor.value.innerText || '').trim().length;
           // 老数据可能只有 data-w 没有 style：补上实际宽度，否则拖动前看到的仍是原图尺寸
           editor.value.querySelectorAll('img').forEach((img) => {
             const w = parseInt(img.getAttribute('data-w'), 10);
             if (w > 0 && !img.style.width) {
               img.style.width = Math.min(1200, w) + 'px';
-              img.style.maxWidth = '100%';
+              const left = parseInt(img.style.marginLeft, 10) || 0;
+      img.style.maxWidth = left ? 'calc(100% - ' + left + 'px)' : '100%';
             }
           });
           noNativeDrag(editor.value);
+          updateFreeImages();
           clearImgSel();
         }
         suppressDirty = false;
       });
     }
 
-    watch(() => props.visible, (v) => { if (v) reset(); });
+    watch(() => props.visible, (v) => { if (v) reset(); else endImgDrag({ type: 'pointercancel' }); });
+    Vue.onBeforeUnmount(() => endImgDrag({ type: 'pointercancel' }));
     // reset() 里赋值 draft 会触发这个 watcher（pre-flush 是异步的），
     // 于是刚打开抽屉就被标成"有未保存的修改"。用一个开关把这次赋值排除掉。
     let suppressDirty = false;
@@ -225,12 +239,41 @@ window.QEditDrawer = {
     /* ---------- 富文本题干 ---------- */
     function syncStem() {
       if (!draft.value || !editor.value) return '';
+      updateFreeImages();
       const html = editor.value.innerHTML || '';
       draft.value.stemHtml = html;
       draft.value.stem = (editor.value.innerText || '').trim();
       stemLength.value = draft.value.stem.length;
       dirty.value = true;
       return html;
+    }
+
+    // 自由图形脱离正文流；只扩展题干画布底部，不改变文字行高。
+    function updateFreeImages() {
+      const host = editor.value;
+      if (!host) return;
+      let bottom = 0;
+      host.querySelectorAll('img[data-x]').forEach((img) => {
+        const x = Math.min(95, Math.max(0, Number(img.getAttribute('data-x')) || 0));
+        const y = Math.max(0, Number(img.getAttribute('data-y')) || 0);
+        img.style.position = 'absolute';
+        img.style.left = x + '%';
+        img.style.top = y + 'px';
+        img.style.margin = '0';
+        img.style.display = 'block';
+        img.style.maxWidth = (100 - x) + '%';
+        const rect = img.getBoundingClientRect();
+        // data-w 必须记录实际显示宽度，不能保留插入时尚未生效的默认值。
+        if (rect.width > 0 && img.naturalWidth > 0) {
+          const width = Math.round(rect.width * 100) / 100;
+          img.setAttribute('data-w', String(Math.round(width)));
+          img.style.width = width + 'px';
+        }
+        const h = rect.height || Number(img.getAttribute('data-h')) || 100;
+        img.setAttribute('data-h', String(Math.ceil(h)));
+        bottom = Math.max(bottom, y + h + 12);
+      });
+      host.style.minHeight = Math.max(240, Math.ceil(bottom)) + 'px';
     }
 
     function onEditorInput() { syncStem(); saveSelection(); }
@@ -244,6 +287,7 @@ window.QEditDrawer = {
       scope.querySelectorAll('img').forEach((img) => {
         img.draggable = false;
         img.setAttribute('draggable', 'false');
+        img.style.webkitUserDrag = 'none';
       });
     }
 
@@ -251,9 +295,20 @@ window.QEditDrawer = {
       if (e.target && e.target.tagName === 'IMG') e.preventDefault();
     }
 
-    /** 压到图上就选中并进入调宽；拖哪里都行，不必非得对准右边缘 */
+    /**
+     * 压到图上就选中并进入调宽；拖哪里都行，不必非得对准右边缘。
+     * 真机鼠标按下时 contenteditable 会把后续拖动当成「选择文字」，
+     * 浏览器接管光标后我们的 mousemove 就断了；所以这里必须 preventDefault
+     * 并立刻挂上 window 监听（合成事件测试看不出这个差异）。
+     */
     function onEditorMouseDown(e) {
-      if (pickImgAt(e) && imgSel.value) { startImgDrag(e); return; }
+      if (e.button !== 0) return;
+      if (pickImgAt(e) && imgSel.value) {
+        e.preventDefault();
+        e.stopPropagation();
+        startImgDrag(e);
+        return;
+      }
       saveSelection();
     }
 
@@ -713,7 +768,8 @@ window.QEditDrawer = {
         img.style.height = 'auto';
       }
       img.style.width = px + 'px';
-      img.style.maxWidth = '100%';
+      const left = parseInt(img.style.marginLeft, 10) || 0;
+      img.style.maxWidth = left ? 'calc(100% - ' + left + 'px)' : '100%';
       imgSelW.value = px;
     }
 
@@ -724,6 +780,13 @@ window.QEditDrawer = {
       syncStem();
     }
 
+    /** 滑块直接设宽度：不依赖鼠标拖动，拖拽失灵时的兜底手段 */
+    function imgWidthSet(w) {
+      if (!imgSel.value) return;
+      setImgWidth(imgSel.value, Number(w));
+      syncStem();
+    }
+
     function imgWidthFit() {
       if (!imgSel.value) return;
       setImgWidth(imgSel.value, 1200);
@@ -731,27 +794,144 @@ window.QEditDrawer = {
       ElMessage.success('已按最大宽度显示');
     }
 
+    /**
+     * 拖动图片 = 移动它在题干里的位置（不是改宽度，宽度用上面的滑块）。
+     * 以文字落点为锚，结合鼠标坐标保留图形在空白处的水平和垂直留白。
+     * 用 pointer 事件而不是 mouse：contenteditable 会把鼠标拖动接管成选文字，
+     * mousemove 会被吞掉，pointermove 不受影响。
+     */
     function startImgDrag(e) {
       const img = imgSel.value;
       if (!img) return;
       e.preventDefault();
-      // 起点用 data-w（用户设定的宽度）；没有才退回渲染宽度
-      const saved = parseInt(img.getAttribute('data-w'), 10);
-      const startW = saved > 0 ? saved : Math.round(img.getBoundingClientRect().width) || 480;
-      imgDrag = { img, startX: e.clientX, startW };
+      e.stopPropagation();
+      const rect = img.getBoundingClientRect();
+      imgDrag = { img, moved: false, x: e.clientX, y: e.clientY, range: null,
+        offsetX: e.clientX - rect.left, offsetY: e.clientY - rect.top };
+      img.classList.add('qe-img-moving');
+      document.body.classList.add('qe-img-dragging');
+      const target = e.currentTarget && e.currentTarget.setPointerCapture && e.pointerId !== undefined
+        ? e.currentTarget : null;
+      if (target) {
+        try { target.setPointerCapture(e.pointerId); } catch (err) {}
+      }
+      window.addEventListener('pointermove', moveImgDrag, true);
+      window.addEventListener('pointerup', endImgDrag, true);
+      window.addEventListener('pointercancel', endImgDrag, true);
       window.addEventListener('mousemove', moveImgDrag);
       window.addEventListener('mouseup', endImgDrag);
     }
 
-    function moveImgDrag(e) {
-      if (!imgDrag) return;
-      setImgWidth(imgDrag.img, imgDrag.startW + (e.clientX - imgDrag.startX));
+    /** 鼠标位置 → 编辑器里的插入点（尽量贴近光标所在文字处） */
+    function caretRangeAt(x, y) {
+      if (!editor.value) return null;
+      let range = null;
+      if (document.caretRangeFromPoint) {
+        range = document.caretRangeFromPoint(x, y);
+      } else if (document.caretPositionFromPoint) {
+        const pos = document.caretPositionFromPoint(x, y);
+        if (pos) {
+          range = document.createRange();
+          range.setStart(pos.offsetNode, pos.offset);
+          range.collapse(true);
+        }
+      }
+      if (!range || !editor.value.contains(range.startContainer)) return null;
+      return range;
     }
 
-    function endImgDrag() {
+    function moveImgDrag(e) {
+      if (!imgDrag) return;
+      // 小抖动不算拖动，避免点一下就挪位置
+      if (!imgDrag.moved && Math.abs(e.clientX - imgDrag.x) < 3 && Math.abs(e.clientY - imgDrag.y) < 3) return;
+      imgDrag.moved = true;
+      // 预览放在 body 中，避免参与题干排版或挡住光标落点检测。
+      if (!imgDrag.preview) {
+        const rect = imgDrag.img.getBoundingClientRect();
+        const preview = document.createElement('img');
+        preview.src = imgDrag.img.currentSrc || imgDrag.img.src;
+        preview.className = 'qe-img-drag-preview';
+        preview.setAttribute('aria-hidden', 'true');
+        preview.style.width = rect.width + 'px';
+        preview.style.height = rect.height + 'px';
+        document.body.appendChild(preview);
+        imgDrag.preview = preview;
+      }
+      imgDrag.preview.style.left = (e.clientX - imgDrag.offsetX) + 'px';
+      imgDrag.preview.style.top = (e.clientY - imgDrag.offsetY) + 'px';
+      const host = editor.value;
+      const box = host.getBoundingClientRect();
+      const inside = e.clientX >= box.left && e.clientX <= box.right && e.clientY >= box.top && e.clientY <= box.bottom;
+      const range = inside ? caretRangeAt(e.clientX, e.clientY) : null;
+      imgDrag.point = inside ? { x: e.clientX, y: e.clientY } : null;
+      imgDrag.preview.classList.toggle('qe-img-drag-invalid', !inside);
+      if (range) {
+        imgDrag.range = range;
+        // 自由定位不使用文字插入线，图片预览本身就是落点。
+        hideDropMark();
+      } else {
+        imgDrag.range = null;
+        hideDropMark();
+      }
+      if (e.cancelable) e.preventDefault();
+    }
+
+    /* 落点提示线：让老师看清会插到哪一行 */
+    const dropMark = ref(null);
+    function showDropMark(range) {
+      if (!dropMark.value) {
+        dropMark.value = document.createElement('div');
+        dropMark.value.className = 'qe-drop-mark';
+      }
+      const r = range.getBoundingClientRect();
+      const host = editor.value;
+      if (!r || !host) return;
+      const base = host.getBoundingClientRect();
+      const mark = dropMark.value;
+      mark.style.left = (r.left - base.left + host.scrollLeft - 2) + 'px';
+      mark.style.top = (r.top - base.top + host.scrollTop) + 'px';
+      mark.style.height = Math.max(18, r.height || 18) + 'px';
+      if (!mark.isConnected && host.parentNode) host.parentNode.appendChild(mark);
+    }
+    function hideDropMark() {
+      if (dropMark.value && dropMark.value.isConnected) dropMark.value.remove();
+    }
+
+    function endImgDrag(e) {
+      if (imgDrag && imgDrag.moved && e && e.type !== 'pointercancel' && Number.isFinite(e.clientX)) moveImgDrag(e);
+      window.removeEventListener('pointermove', moveImgDrag, true);
+      window.removeEventListener('pointerup', endImgDrag, true);
+      window.removeEventListener('pointercancel', endImgDrag, true);
       window.removeEventListener('mousemove', moveImgDrag);
       window.removeEventListener('mouseup', endImgDrag);
-      if (imgDrag) { imgDrag = null; syncStem(); }
+      document.body.classList.remove('qe-img-dragging');
+      hideDropMark();
+      const d = imgDrag;
+      imgDrag = null;
+      if (!d) return;
+      if (d.preview) d.preview.remove();
+      d.img.classList.remove('qe-img-moving');
+      if ((e && e.type === 'pointercancel') || !d.moved || !d.point) return;
+      try {
+        const img = d.img;
+        const host = editor.value;
+        const base = host.getBoundingClientRect();
+        const width = img.getBoundingClientRect().width;
+        const maxLeft = Math.max(0, host.clientWidth - width);
+        const left = Math.min(maxLeft, Math.max(0, d.point.x - d.offsetX - base.left + host.scrollLeft - host.clientLeft));
+        const top = Math.max(0, Math.round(d.point.y - d.offsetY - base.top + host.scrollTop - host.clientTop));
+        img.setAttribute('data-x', String(Math.round(left / Math.max(1, host.clientWidth) * 10000) / 100));
+        img.setAttribute('data-y', String(top));
+        // 只移动图片节点，不插入空格、换行或占行的图片块。
+        host.appendChild(img);
+        updateFreeImages();
+        selectImg(img);
+        syncImgSelWidth();
+        syncStem();
+        ElMessage.success('已移动图形位置');
+      } catch (err) {
+        ElMessage.warning('这个位置放不下图形，已保持原位置');
+      }
     }
 
     /* ---------- 整段文本处理：不能把题干里的图抹掉 ----------
@@ -821,7 +1001,7 @@ window.QEditDrawer = {
       cropVisible, cropSource, cropWrap, cropCanvas, cropSel, cropping,
       figures, needOptions, typeTag, diffTag, diffLevel, diffLabel, figSrc, addOption, optFocus, optScript, aiSolve,
       onEditorInput, onEditorPaste, onEditorMouseDown, onEditorDragStart, fmt, bumpFont, insertFigureAt, removeInlineFigure,
-      imgSel, imgSelW, imgWidthBy, imgWidthFit, clearImgSel,
+      imgSel, imgSelW, imgWidthBy, imgWidthSet, imgWidthFit, clearImgSel,
       answerBlanks, answerPreview, onAnswerInput, addAnswerBlank, removeAnswerBlank,
       ansFocus, ansScript, ansSize, ansActive,
       openCropForInline, saveSelection, pickFromGallery, saveToGallery,

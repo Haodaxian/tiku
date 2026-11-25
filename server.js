@@ -543,6 +543,7 @@ function cleanFigure(f, i) {
   return {
     id: String(f.id || uid('fig')),
     label: String(f.label || ('图' + (i + 1))).slice(0, 12),
+    libraryOnly: f.libraryOnly === true,
     desc,
     url,
     src,

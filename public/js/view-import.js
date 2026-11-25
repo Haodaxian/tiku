@@ -579,59 +579,17 @@ window.ViewImport = {
       if (q.type && q.type !== '其他' && (!cur.type || cur.type === '其他')) cur.type = q.type;
     }
 
-    /**
-     * 追加一张图片到题目。
-     * 整块识别时模型会在题干里留 [图1] 占位，图形位置已固定；
-     * 老师再单独框这个图形时要把图填进占位，不能再追加一份，
-     * 否则 renderStem 会把占位和追加的 <img> 各渲染一遍，图就出现两次。
-     */
+    /** 单独裁切的图形只进入图形库，由用户点击插入后进入题干。 */
     function appendImageTo(cur, url) {
       if (!url) return;
       cur.figures = Array.isArray(cur.figures) ? cur.figures : [];
-      const head = String(cur.stemHtml || '') + '\n' + String(cur.stem || '');
-      // 同一张图（同一地址）已经在这道题里了，直接跳过
-      if (cur.figures.some((f) => TK.figSrc(f) === url) || head.indexOf(url) >= 0) return;
-
-      const used = cur.figures.filter((f) => TK.figSrc(f)).map((f) => String(f.label || ''));
-      const holders = head.match(/\[图\d+\]/g) || [];
-      const placeholders = holders.map((m) => m.slice(1, -1));
-      const free = placeholders.find((l) => used.indexOf(l) < 0);
-      // 题干里还没填图的占位对应的空 figure 条目
-      const empty = cur.figures.filter((f) => !TK.figSrc(f));
-
-      if (free) {
-        const imgHtml = '<img src="' + url + '" data-fig="1">';
-        const match = empty.find((f) => String(f.label || '') === free);
-        if (match) { match.url = url; }
-        else {
-          cur.figures.push({
-            id: 'fig_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-            label: free, desc: '', url
-          });
-        }
-        // 有富文本题干时把占位就地换成 <img>，编辑器里也能直接看到这张图
-        if (cur.stemHtml && cur.stemHtml.indexOf('[' + free + ']') >= 0) {
-          cur.stemHtml = cur.stemHtml.split('[' + free + ']').join(imgHtml);
-        }
-        return;
-      }
-      if (empty.length) { empty[0].url = url; return; }
-
-      const labels = cur.figures.map((f) => String(f.label || ''));
-      let n = cur.figures.length + 1;
-      while (labels.indexOf('图' + n) >= 0) n += 1;
-      const label = '图' + n;
+      if (cur.figures.some((f) => TK.figSrc(f) === url)) return;
+      let n = 1;
+      while (cur.figures.some((f) => f.label === '图' + n)) n++;
       cur.figures.push({
         id: 'fig_' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6),
-        label, desc: '', url
+        label: '图' + n, desc: '', url, libraryOnly: true
       });
-      // 占位和 <img> 只能有一种：两者都在时 renderStem 会各渲染一遍，图就出现两次。
-      // 有富文本题干时补 <img>；纯文本题干只补 [图N]，由 renderStem 就地内嵌。
-      if (cur.stemHtml) {
-        cur.stemHtml = (cur.stemHtml ? cur.stemHtml + '<br>' : '') + '<img src="' + url + '" data-fig="1">';
-      } else {
-        cur.stem = (cur.stem ? cur.stem + '\n' : '') + '[' + label + ']';
-      }
     }
 
     /** 同一题卡里的多次裁切都并进同一道题；题卡里还没有题时才新建一道 */
@@ -639,6 +597,7 @@ window.ViewImport = {
       const card = activeCard.value;
       const cur = card.questions[card.questions.length - 1];
       if (!cur) {
+        if (kind === 'image') { q.stem = ''; q.stemHtml = '<p><br></p>'; q.figures.forEach((f) => { f.libraryOnly = true; }); }
         card.questions.push(Object.assign(q, { _checked: true, source: cropSource.value }));
         return false;
       }
@@ -668,7 +627,7 @@ window.ViewImport = {
         } else {
           const url = await TK.uploadImage(cropImage.value);
           const appended = pushCropQuestion(imageQuestion(url), 'image');
-          ElMessage.success(appended ? '已并入当前题目' : '已按图片添加 1 道，可到编辑里并入其它题');
+          ElMessage.success('已存入当前题目的图形库，点击「插入」可放入题干');
         }
         cropVisible.value = false;
         sel.value = null;
@@ -689,9 +648,14 @@ window.ViewImport = {
     }
 
     function imageQuestion(url) {
-      const q = plainQuestion('[图1]');
+      // 纯图形题：题干就是这张图。stem 不能再写成 '[图1]'——
+      // 一旦 stemHtml 里已经有 <img>，再把 '[图1]' 放进纯文本题干，
+      // 搜索、复制、编辑器里都会露出「图1」这几个字。
+      const q = plainQuestion('');
+      q.stem = '';
       q.stemHtml = '<img src="' + url + '" data-fig="1">';
       q.figures = [{ id: 'fig_' + Date.now().toString(36), label: '图1', desc: '', url }];
+      q.hasImage = true;
       return q;
     }
 
