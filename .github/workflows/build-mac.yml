@@ -1,0 +1,51 @@
+name: 打包 Mac M芯片版
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 准备 Mac 配置
+        run: |
+          node <<'NODE'
+          const fs = require('fs');
+          const config = require('./electron-builder.json');
+          // 当前项目只有 Windows ico，Mac 暂用默认图标。
+          delete config.mac.icon;
+          // 云端使用官方 Electron 下载源。
+          delete config.electronDownload;
+          fs.writeFileSync('electron-builder.mac.json',
+            JSON.stringify(config, null, 2));
+          NODE
+
+      - name: 打包 Apple 芯片版
+        run: >
+          npx electron-builder
+          --mac zip
+          --arm64
+          --publish never
+          --config electron-builder.mac.json
+
+      - name: 上传打包结果
+        uses: actions/upload-artifact@v6
+        with:
+          name: Mac-Apple-Silicon
+          path: dist-electron/*.zip
+          if-no-files-found: error
